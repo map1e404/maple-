@@ -1,0 +1,3376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>CODE 100 - 数媒零基础编程互动闯关 (C# & p5.js)</title>
+  <style>
+    :root {
+      --bg-main: #090d16;
+      --bg-card: #131b2e;
+      --bg-card-sub: #1b2640;
+      --border-color: #263554;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-cs: #38bdf8;
+      --accent-cs-glow: rgba(56, 189, 248, 0.2);
+      --accent-p5: #f43f5e;
+      --accent-p5-glow: rgba(244, 63, 94, 0.2);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.2);
+      --warning: #f59e0b;
+      --kw-color: #fb7185;
+      --id-color: #38bdf8;
+      --code-bg: #0b1120;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* iOS QuickLook Warning Banner for <noscript> */
+    .noscript-banner {
+      background: #b91c1c;
+      color: #fff;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1.5;
+      text-align: center;
+      border-bottom: 2px solid #ef4444;
+    }
+
+    /* Top App Bar */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: #0d1424;
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 14px;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, var(--accent-cs), var(--accent-p5));
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 900;
+    }
+
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 4px 8px;
+      border-radius: 20px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .stat-pill strong {
+      color: var(--text-main);
+    }
+    .stat-pill.streak {
+      color: #fb923c;
+      border-color: rgba(251, 146, 60, 0.3);
+      background: rgba(251, 146, 60, 0.08);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    .icon-btn:active {
+      transform: scale(0.92);
+      background: var(--border-color);
+    }
+
+    /* Track Filter Tabs */
+    .track-tabs {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px 6px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      white-space: nowrap;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    .tab-btn.active {
+      background: var(--bg-card-sub);
+      color: #fff;
+      border-color: var(--accent-cs);
+    }
+    .tab-btn.active.tab-p5 {
+      border-color: var(--accent-p5);
+    }
+
+    /* XP Progress Bar */
+    .xp-meter {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .xp-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-card);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    .xp-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-cs), var(--accent-p5));
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
+
+    /* Main Container */
+    .main-content {
+      flex: 1;
+      padding: 12px 14px 110px;
+      max-width: 640px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Level Info Card */
+    .level-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .level-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent-cs);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .level-badge.p5-badge {
+      background: rgba(244, 63, 94, 0.12);
+      color: var(--accent-p5);
+      border-color: rgba(244, 63, 94, 0.3);
+    }
+    .chapter-title {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .level-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.35;
+    }
+
+    /* Concept Card */
+    .card-concept {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-cs);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .card-concept.p5-concept {
+      border-left-color: var(--accent-p5);
+    }
+    .concept-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-cs);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .card-concept.p5-concept .concept-header {
+      color: var(--accent-p5);
+    }
+    .concept-body {
+      font-size: 0.86rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+      user-select: text;
+    }
+    .concept-body code {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.83rem;
+    }
+
+    /* Identifier Guide Bar */
+    .identifier-guide-box {
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.78rem;
+    }
+    .id-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      line-height: 1.4;
+    }
+    .id-tag {
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .id-tag.kw {
+      background: rgba(251, 113, 133, 0.2);
+      color: var(--kw-color);
+      border: 1px solid rgba(251, 113, 133, 0.4);
+    }
+    .id-tag.custom {
+      background: rgba(56, 189, 248, 0.2);
+      color: var(--id-color);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+    .id-text {
+      color: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+    }
+
+    /* Code Block Window */
+    .code-window {
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .code-header {
+      background: #101726;
+      border-bottom: 1px solid var(--border-color);
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .code-dots {
+      display: flex;
+      gap: 4px;
+    }
+    .code-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #334155;
+    }
+    .code-dot.red { background: #ef4444; }
+    .code-dot.yellow { background: #f59e0b; }
+    .code-dot.green { background: #10b981; }
+
+    .code-body {
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      overflow-x: auto;
+      white-space: pre;
+      user-select: text;
+    }
+
+    /* Question Prompt */
+    .question-prompt {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-top: 4px;
+      line-height: 1.45;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .q-icon {
+      color: var(--accent-cs);
+      flex-shrink: 0;
+    }
+
+    /* Options Grid / Column (Touch-friendly for iOS) */
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .option-btn {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 14px;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #f1f5f9;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .option-btn:active {
+      transform: scale(0.98);
+      background: var(--bg-card-sub);
+    }
+    .option-letter {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+    .option-btn.correct {
+      border-color: var(--success) !important;
+      background: rgba(16, 185, 129, 0.22) !important;
+      color: #fff !important;
+    }
+    .option-btn.correct .option-letter {
+      background: var(--success);
+      color: #fff;
+      border-color: var(--success);
+    }
+    .option-btn.wrong {
+      border-color: var(--danger) !important;
+      background: rgba(239, 68, 68, 0.22) !important;
+      color: #fff !important;
+    }
+    .option-btn.wrong .option-letter {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+    .option-text {
+      flex: 1;
+      line-height: 1.35;
+      word-break: break-word;
+      pointer-events: none;
+    }
+
+    /* Feedback Drawer */
+    .feedback-box {
+      display: none;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .feedback-box.show {
+      display: block;
+    }
+    .feedback-box.is-correct {
+      border-color: var(--success);
+    }
+    .feedback-box.is-wrong {
+      border-color: var(--danger);
+    }
+
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .feedback-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+    .feedback-status.correct { color: var(--success); }
+    .feedback-status.wrong { color: var(--danger); }
+
+    .explanation-content {
+      font-size: 0.86rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+      white-space: pre-line;
+      margin-bottom: 14px;
+      user-select: text;
+    }
+
+    .feedback-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .action-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      touch-action: manipulation;
+    }
+    .action-btn:active {
+      transform: scale(0.97);
+    }
+    .btn-next {
+      background: #0284c7;
+      color: #fff;
+    }
+    .btn-retry {
+      background: var(--bg-card-sub);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Modal / Drawer Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 640px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .modal-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 6px 10px;
+      touch-action: manipulation;
+    }
+
+    .modal-body {
+      padding: 14px 16px;
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Level Map Grid */
+    .map-filter {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .filter-btn {
+      flex: 1;
+      padding: 8px 4px;
+      border-radius: 8px;
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 600;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .filter-btn.active {
+      border-color: var(--accent-cs);
+      color: #fff;
+      background: var(--accent-cs-glow);
+    }
+
+    .chapters-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .chapter-group-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .level-tile {
+      aspect-ratio: 1;
+      background: var(--bg-card-sub);
+      border: 1.5px solid var(--border-color);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .level-tile:active {
+      transform: scale(0.92);
+    }
+    .level-tile.current {
+      border-color: var(--accent-cs);
+      background: var(--accent-cs-glow);
+      color: #fff;
+    }
+    .level-tile.completed {
+      border-color: var(--success);
+      color: var(--success);
+      background: rgba(16, 185, 129, 0.15);
+    }
+    .level-tile.has-error {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.15);
+    }
+    .level-tile .tile-icon {
+      font-size: 0.65rem;
+      margin-top: 2px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 10px;
+      color: var(--text-muted);
+    }
+    .empty-state .icon {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+    }
+
+    /* Fixed Bottom Navigation Pill */
+    .bottom-nav {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 24px);
+      max-width: 600px;
+      background: #111a2e;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      z-index: 30;
+      margin-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: var(--text-muted);
+      font-size: 0.68rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    .nav-item.active {
+      color: var(--accent-cs);
+    }
+    .nav-item .nav-icon {
+      font-size: 1.15rem;
+      pointer-events: none;
+    }
+    .nav-badge {
+      background: var(--danger);
+      color: #fff;
+      font-size: 0.6rem;
+      padding: 1px 5px;
+      border-radius: 99px;
+      position: absolute;
+      top: -2px;
+      right: -4px;
+      font-weight: 800;
+    }
+
+    /* Toast */
+    .toast-msg {
+      position: fixed;
+      top: 65px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 999;
+    }
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NoScript banner: tells user how to open in Safari if inside Files app preview -->
+  <noscript>
+    <div class="noscript-banner">
+      ⚠️ 检测到当前处于苹果系统纯文档预览模式（脚本已被系统禁用）。<br>
+      请轻点左下角的【分享图标 ⬆️】，选择【在 Safari 浏览器中打开】，即可正常点击答题！
+    </div>
+  </noscript>
+
+  <!-- Top Navigation & Stats Bar -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand">
+        <span>CODE 100</span>
+        <span class="brand-badge">数媒通关</span>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-pill streak" title="连续答对">
+          <span>🔥</span><strong id="streakCount">0</strong>
+        </div>
+        <div class="stat-pill">
+          <span>⚡</span><strong id="userXp">0</strong> XP
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="soundToggle" onclick="window.toggleSound()" title="音效开关">🔊</button>
+        <button class="icon-btn" id="mapBtn" onclick="window.openMap('all')" title="关卡地图">🗺️</button>
+      </div>
+    </div>
+
+    <!-- Track Selector -->
+    <div class="track-tabs">
+      <button class="tab-btn active" id="tabAll" onclick="window.switchTrack('all')">全部 100 关</button>
+      <button class="tab-btn" id="tabCs" onclick="window.switchTrack('csharp')">C# 基础 (1-50)</button>
+      <button class="tab-btn tab-p5" id="tabP5" onclick="window.switchTrack('p5js')">p5.js 视觉 (51-100)</button>
+    </div>
+
+    <!-- XP / Level Meter -->
+    <div class="xp-meter">
+      <span id="levelRank">Lv.1 萌新代码员</span>
+      <div class="xp-bar-bg">
+        <div class="xp-bar-fill" id="xpFill"></div>
+      </div>
+      <span id="progressSummary">0/100</span>
+    </div>
+  </header>
+
+  <!-- Main Question Screen -->
+  <main class="main-content" id="quizContainer">
+    <!-- Meta -->
+    <div class="level-meta">
+      <span class="level-badge" id="levelTrackBadge">C# 关卡 1</span>
+      <span class="chapter-title" id="chapterTitle">第1章：变量与数值类型</span>
+    </div>
+
+    <!-- Question Title -->
+    <h1 class="level-title" id="questionTitle">初识 int 与变量赋值</h1>
+
+    <!-- Pre-question Concept Tutorial -->
+    <section class="card-concept" id="conceptCard">
+      <div class="concept-header">
+        <span>💡 关卡导学与核心原理</span>
+      </div>
+      <div class="concept-body" id="conceptBody">
+        在 C# 中，变量就像贴了标签的存钱罐。`int` 是 integer（整数）的缩写，专门用来存整数（如 100、-5、0），不能存小数。变量必须先声明类型，再起名字，最后用 `=` 赋值。
+      </div>
+    </section>
+
+    <!-- Keyword vs Custom Identifier Legend -->
+    <div class="identifier-guide-box" id="identifierGuideBox">
+      <div class="id-row">
+        <span class="id-tag kw">关键字</span>
+        <span class="id-text" id="kwText">int</span>
+      </div>
+      <div class="id-row">
+        <span class="id-tag custom">自定义名称</span>
+        <span class="id-text" id="customNameText">playerHp</span>
+      </div>
+    </div>
+
+    <!-- Code Block -->
+    <div class="code-window">
+      <div class="code-header">
+        <div class="code-dots">
+          <div class="code-dot red"></div>
+          <div class="code-dot yellow"></div>
+          <div class="code-dot green"></div>
+        </div>
+        <span id="codeLangLabel">C# Source</span>
+      </div>
+      <pre class="code-body" id="codeContent"><code>int playerHp = 100;
+Console.WriteLine(playerHp);</code></pre>
+    </div>
+
+    <!-- Question Prompt -->
+    <div class="question-prompt">
+      <span class="q-icon">❓</span>
+      <span id="questionPrompt">运行上面两行代码，控制台会输出什么内容？</span>
+    </div>
+
+    <!-- 4 Big Thumb Options (Pre-rendered for instant responsiveness) -->
+    <div class="options-container" id="optionsContainer">
+      <button class="option-btn" onclick="window.handleOptionClick(0, this)">
+        <div class="option-letter">A</div>
+        <div class="option-text">playerHp</div>
+      </button>
+      <button class="option-btn" onclick="window.handleOptionClick(1, this)">
+        <div class="option-letter">B</div>
+        <div class="option-text">100</div>
+      </button>
+      <button class="option-btn" onclick="window.handleOptionClick(2, this)">
+        <div class="option-letter">C</div>
+        <div class="option-text">0</div>
+      </button>
+      <button class="option-btn" onclick="window.handleOptionClick(3, this)">
+        <div class="option-letter">D</div>
+        <div class="option-text">报错：无法运行</div>
+      </button>
+    </div>
+
+    <!-- Feedback Drawer -->
+    <div class="feedback-box" id="feedbackBox">
+      <div class="feedback-header">
+        <div class="feedback-status" id="feedbackStatus">
+          <span id="feedbackIcon">🎉</span>
+          <span id="feedbackTitle">回答正确！</span>
+        </div>
+        <span class="stat-pill" id="rewardXp">+20 XP</span>
+      </div>
+      <div class="explanation-content" id="explanationContent">
+        逐步解析内容...
+      </div>
+      <div class="feedback-actions">
+        <button class="action-btn btn-retry" id="btnRetry" onclick="window.retryCurrentLevel()">再看一遍 ↺</button>
+        <button class="action-btn btn-next" id="btnNext" onclick="window.goToNextLevel()">下一关 ➔</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Level Map Drawer Modal -->
+  <div class="modal-overlay" id="mapModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>🗺️ 关卡地图与知识全景</span>
+        </div>
+        <button class="modal-close" id="closeMapBtn" onclick="window.closeMap()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="map-filter">
+          <button class="filter-btn active" id="filterAll" onclick="window.filterMap('all')">全部关卡</button>
+          <button class="filter-btn" id="filterCs" onclick="window.filterMap('csharp')">仅 C#</button>
+          <button class="filter-btn" id="filterP5" onclick="window.filterMap('p5js')">仅 p5.js</button>
+          <button class="filter-btn" id="filterErrors" onclick="window.filterMap('errors')">仅错题 (<span id="errorCountBadge">0</span>)</button>
+        </div>
+        <div class="chapters-list" id="chaptersList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Confirmation Modal -->
+  <div class="modal-overlay" id="resetModal">
+    <div class="modal-sheet" style="max-height: 40vh;">
+      <div class="modal-header">
+        <div class="modal-title"><span>⚠️ 重置学习进度</span></div>
+        <button class="modal-close" id="closeResetBtn" onclick="window.closeResetModal()">✕</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 20px;">
+        <p style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+          确定要清除所有通关记录、错题本和经验值吗？此操作无法撤销。
+        </p>
+        <div style="display: flex; gap: 10px;">
+          <button class="action-btn btn-retry" id="cancelResetBtn" onclick="window.closeResetModal()" style="flex: 1;">取消</button>
+          <button class="action-btn" id="confirmResetBtn" onclick="window.confirmReset()" style="flex: 1; background: var(--danger); color: #fff;">确认重置</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="navLearn" onclick="window.navGoLearn()">
+      <span class="nav-icon">📖</span>
+      <span>通关练习</span>
+    </div>
+    <div class="nav-item" id="navMap" onclick="window.openMap('all')" style="position: relative;">
+      <span class="nav-icon">🗺️</span>
+      <span>关卡地图</span>
+    </div>
+    <div class="nav-item" id="navMistakes" onclick="window.navGoMistakes()" style="position: relative;">
+      <span class="nav-icon">📝</span>
+      <span>错题重练</span>
+      <span class="nav-badge" id="navMistakeCount" style="display: none;">0</span>
+    </div>
+    <div class="nav-item" id="navReset" onclick="window.openResetModal()">
+      <span class="nav-icon">⚙️</span>
+      <span>重置</span>
+    </div>
+  </nav>
+
+  <!-- Floating Toast Message -->
+  <div class="toast-msg" id="toastMsg">
+    <span id="toastIcon">✨</span>
+    <span id="toastText">升级啦！</span>
+  </div>
+
+  <!-- Embedded Question Dataset -->
+  <script>
+    const QUESTIONS_DATA = [
+  {
+    "id": 1,
+    "track": "csharp",
+    "chapter": "第1章：变量与数值类型",
+    "title": "初识 int 与变量赋值",
+    "concept": "在 C# 中，变量就像贴了标签的存钱罐。`int` 是 integer（整数）的缩写，专门用来存整数（如 100、-5、0），不能存小数。变量必须先声明类型，再起名字，最后用 `=` 赋值。",
+    "identifierGuide": "关键字（语言自带）：int | 自定义名称（你起的）：playerHp",
+    "code": "int playerHp = 100;\nConsole.WriteLine(playerHp);",
+    "question": "运行上面两行代码，控制台会输出什么内容？",
+    "options": [
+      "playerHp",
+      "100",
+      "0",
+      "报错：无法运行"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n1. `int playerHp = 100;` 创建了一个名为 playerHp 的整数变量，并放入 100。\n2. `Console.WriteLine(playerHp);` 打印的是变量里面装的值，而不是变量名本身。\n【AI游戏代码小贴士】在 Unity 等游戏引擎中，血量、金币数、关卡编号几乎全部用 int 来记录。",
+    "xp": 20
+  },
+  {
+    "id": 2,
+    "track": "csharp",
+    "chapter": "第1章：变量与数值类型",
+    "title": "string 文本字符串与双引号",
+    "concept": "存储文字（人名、对话、装备名）必须使用 `string` 类型。在 C# 中，字符串的值必须用【英文半角双引号 \" \"】包裹起来，绝对不能漏掉引号。",
+    "identifierGuide": "关键字：string | 自定义名称：heroName",
+    "code": "string heroName = \"亚瑟\";\nConsole.WriteLine(\"英雄是：\" + heroName);",
+    "question": "控制台最终打印的结果是哪一项？",
+    "options": [
+      "英雄是：heroName",
+      "英雄是：亚瑟",
+      "\"英雄是：亚瑟\"",
+      "报错：文本不能加变量"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n1. `\"亚瑟\"` 是字符串字面量，存入 heroName 变量中。\n2. 在输出时，`+` 号在这里起到了【字符串拼接】的作用，把前面的文字和变量值黏合在一起。\n3. 双引号只是代码书写规范，输出到控制台时不会显示双引号。",
+    "xp": 20
+  },
+  {
+    "id": 3,
+    "track": "csharp",
+    "chapter": "第1章：变量与数值类型",
+    "title": "float 浮点数与必须的 f 后缀",
+    "concept": "游戏中的移动速度、怪物攻击间隔通常包含小数。`float` 表示单精度浮点数。C# 规定：给 float 赋值小数时，数字末尾【必须加上小写 f 或大写 F】，否则系统会默认它是双精度 double 而报错！",
+    "identifierGuide": "关键字：float | 自定义名称：moveSpeed",
+    "code": "float moveSpeed = 4.5f;\nConsole.WriteLine(moveSpeed);",
+    "question": "如果把代码写成 float moveSpeed = 4.5;（去掉 f），会发生什么？",
+    "options": [
+      "正常输出 4.5",
+      "自动四舍五入变成 4",
+      "编译报错：无法将 double 隐式转换为 float",
+      "输出 4.5f"
+    ],
+    "answer": 2,
+    "explanation": "【逐步分析】\n在 C# 中，字面量小数（如 4.5）默认是 double 类型（8字节）。float 是 4 字节，C# 出于安全考虑，禁止高精度隐式放入低精度容器中，所以必须加上 `f` 明确告诉编译器：这是 float！\n【AI游戏代码小贴士】看 AI 写的 Unity 脚本时，你会经常看到 `speed = 5.0f * Time.deltaTime;`，那个末尾的 f 就是这个原因！",
+    "xp": 20
+  },
+  {
+    "id": 4,
+    "track": "csharp",
+    "chapter": "第1章：变量与数值类型",
+    "title": "double 高精度双精度浮点数",
+    "concept": "与 `float` 相比，`double` 占用 8 个字节（64 位），精度约 15-17 位有效数字（float 只有 6-9 位）。double 赋值不需要加后缀。",
+    "identifierGuide": "关键字：double | 自定义名称：worldGravity",
+    "code": "double worldGravity = 9.80665;\nConsole.WriteLine(worldGravity);",
+    "question": "关于 float 和 double 的区别，下列说法最准确的是？",
+    "options": [
+      "float 只能存整数，double 存小数",
+      "double 精度更高且占 8 字节，赋值小数无需加 f 后缀",
+      "float 精度比 double 更高",
+      "游戏开发中永远只使用 double，从不用 float"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n1. double 精度高，适合科学计算与物理模拟。\n2. 在 Unity 移动端游戏开发中，float 占用显存和内存少，3D 向量 Vector3 全部由 float 构成，因此在图形学和游戏中 float 更常见。",
+    "xp": 20
+  },
+  {
+    "id": 5,
+    "track": "csharp",
+    "chapter": "第1章：变量与数值类型",
+    "title": "bool 布尔类型与真假开关",
+    "concept": "`bool`（布尔型）只有两个取值：`true`（真/是）或 `false`（假/否）。在游戏中常用来做开关状态判断，比如：玩家是否存活、是否无敌、是否在地板上。",
+    "identifierGuide": "关键字：bool, true | 自定义名称：isInvincible",
+    "code": "bool isInvincible = true;\nConsole.WriteLine(isInvincible);",
+    "question": "运行后控制台会输出什么？",
+    "options": [
+      "1",
+      "true",
+      "True",
+      "isInvincible"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n1. C# 中的 bool 类型输出时会直接显示 `True` 或 `true`（C# ToString 格式），在代码中字面量关键字是全小写的 `true` 和 `false`。\n2. 与 C/C++ 不同，C# 的 bool 不能直接与数字 1 或 0 互相隐式转换，类型安全性极强。",
+    "xp": 20
+  },
+  {
+    "id": 6,
+    "track": "csharp",
+    "chapter": "第1章：变量与数值类型",
+    "title": "long 超大整数与数值上限",
+    "concept": "`int` 只有 32 位，最大只能存大约 21 亿（2,147,483,647）。在挂机放置游戏或大世界游戏中，战力或金币很容易超过 21 亿，此时会导致【整数溢出】变成负数！`long` 拥有 64 位，上限高达 922 亿亿，常配以后缀 `L`。",
+    "identifierGuide": "关键字：long | 自定义名称：goldCoins",
+    "code": "long goldCoins = 9999999999L; // 99亿\nConsole.WriteLine(goldCoins);",
+    "question": "为什么很多放置类/传奇类游戏金币不用 int 而选用 long？",
+    "options": [
+      "因为 long 运行速度比 int 快 10 倍",
+      "因为 int 上限约 21 亿，超出会产生数值溢出",
+      "因为 long 可以存储小数",
+      "因为 int 在手机端无法编译"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\nint 的范围是 -2,147,483,648 到 2,147,483,647。当数值超过 21 亿时，32 位二进制符号位翻转，21 亿会直接变成负 21 亿！这就是老游戏中著名的数值溢出 Bug。存储极大整数必须使用 `long`，字面量后缀推荐用大写 `L`。",
+    "xp": 20
+  },
+  {
+    "id": 7,
+    "track": "csharp",
+    "chapter": "第1章：变量与数值类型",
+    "title": "变量的重新赋值与覆盖",
+    "concept": "变量声明（写类型）只在第一次创建时写一次。后续修改变量的值时，直接写 `变量名 = 新值;`，新值会覆盖旧值。",
+    "identifierGuide": "关键字：int | 自定义名称：playerScore",
+    "code": "int playerScore = 50;\nplayerScore = 80;\nConsole.WriteLine(playerScore);",
+    "question": "运行后控制台最终输出的分数是多少？",
+    "options": [
+      "50",
+      "80",
+      "130",
+      "报错：变量重复定义"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n1. 第1行声明并初始化 `playerScore` 为 50。\n2. 第2行进行重新赋值，80 覆盖了原本的 50。\n3. 第3行打印此时的值，即 80。\n注意：第2行不能写 `int playerScore = 80;`，否则会报错提示变量重名。",
+    "xp": 20
+  },
+  {
+    "id": 8,
+    "track": "csharp",
+    "chapter": "第1章：变量与数值类型",
+    "title": "字符串与数字拼接的隐式转换",
+    "concept": "当使用 `+` 号连接【字符串】与【数值变量】时，C# 会自动将数值转为字符串，然后连接在一起，生成一个新的完整字符串。",
+    "identifierGuide": "关键字：int, string | 自定义名称：stageLevel, info",
+    "code": "int stageLevel = 3;\nstring info = \"Stage_\" + stageLevel;\nConsole.WriteLine(info);",
+    "question": "变量 info 最终存储的字符串内容是？",
+    "options": [
+      "Stage_3",
+      "Stage_stageLevel",
+      "报错：类型不匹配",
+      "Stage_03"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\n`\"Stage_\"` 是字符串，`stageLevel` 是整型 3。通过 `+` 拼接后，3 转为字符串 \"3\"，结果就是 \"Stage_3\"。\n在游戏开发中，常用于根据关卡号动态加载资源路径，例如 `\"Level_\" + id`。",
+    "xp": 20
+  },
+  {
+    "id": 9,
+    "track": "csharp",
+    "chapter": "第1章：变量与数值类型",
+    "title": "现代 C# 核心技能：字符串插值 $\"\"",
+    "concept": "在字符串前加 `$` 符号，就可以用 `{变量名}` 直接把变量嵌入到文本中。这比连续用 `+` 号拼接清晰得多，AI 生成的代码中 90% 采用此写法！",
+    "identifierGuide": "关键字：int, string | 自定义名称：bossHp, text",
+    "code": "int bossHp = 500;\nstring text = $\"Boss剩余血量: {bossHp} 点\";\nConsole.WriteLine(text);",
+    "question": "上述代码输出的结果是？",
+    "options": [
+      "Boss剩余血量: {bossHp} 点",
+      "Boss剩余血量: 500 点",
+      "text",
+      "报错：$ 符号非法"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n`$\"\"` 是 C# 6.0 引入的字符串插值语法。括号 `{bossHp}` 会被替换为该变量当前的值 500。输出即为：Boss剩余血量: 500 点。",
+    "xp": 20
+  },
+  {
+    "id": 10,
+    "track": "csharp",
+    "chapter": "第1章：变量与数值类型",
+    "title": "识别关键字与自定义标识符",
+    "concept": "关键字（如 `int`, `float`, `class`, `if`）是 C# 语言预留的专用指令，不能直接用作变量名。自定义变量名应采用有意义的小驼峰命名（如 `playerScore`）。",
+    "identifierGuide": "关键字：class, int, void, for | 自定义名称：合法变量名",
+    "code": "// 哪一个变量声明在 C# 中是合法的？\nA. int class = 10;\nB. int playerLevel = 5;\nC. int 2heroes = 2;\nD. int player-hp = 100;",
+    "question": "下列哪一项是语法正确的 C# 变量命名与声明？",
+    "options": [
+      "int class = 10;",
+      "int playerLevel = 5;",
+      "int 2heroes = 2;",
+      "int player-hp = 100;"
+    ],
+    "answer": 1,
+    "explanation": "【逐项诊断】\nA 错误：class 是语言关键字；\nC 错误：变量名不能以数字开头；\nD 错误：减号 `-` 会被解析为减法运算符；\nB 正确：合法的标识符以字母或下划线开头，且不与关键字冲突。",
+    "xp": 20
+  },
+  {
+    "id": 11,
+    "track": "csharp",
+    "chapter": "第2章：算术与运算符",
+    "title": "四则算术运算基础",
+    "concept": "C# 支持基础的四则运算：`+`（加）、`-`（减）、`*`（乘）、`/`（除）。运算顺序遵循标准的先乘除后加减规则。",
+    "identifierGuide": "关键字：int | 自定义名称：atk, buff, totalDamage",
+    "code": "int atk = 20;\nint buff = 5;\nint totalDamage = atk * 2 + buff;\nConsole.WriteLine(totalDamage);",
+    "question": "totalDamage 最终计算出的值是多少？",
+    "options": [
+      "50",
+      "45",
+      "70",
+      "25"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n根据先乘除后加减：\n`atk * 2` 先算：20 * 2 = 40。\n再加上 buff：40 + 5 = 45。\n如果希望先加 buff，需要加括号：`atk * (2 + buff)`。",
+    "xp": 20
+  },
+  {
+    "id": 12,
+    "track": "csharp",
+    "chapter": "第2章：算术与运算符",
+    "title": "整数除法的大坑：向零截断",
+    "concept": "当除号 `/` 两边都是整数（int）时，结果也必然是整数！小数部分会被无情扔掉（截断），而不是四舍五入。例如 `5 / 2` 得到的是 `2`！",
+    "identifierGuide": "关键字：int | 自定义名称：a, b, result",
+    "code": "int a = 7;\nint b = 2;\nint result = a / b;\nConsole.WriteLine(result);",
+    "question": "控制台打印出的 result 是多少？",
+    "options": [
+      "3.5",
+      "3",
+      "4",
+      "报错：无法除尽"
+    ],
+    "answer": 1,
+    "explanation": "【核心考点】\n7 / 2 数学上等于 3.5。但因为 a 和 b 都是 int，整型运算结果丢弃小数部分，直接截断为 3。\n【新手防坑】如果计算掉宝概率或百分比时用 `int rate = 1 / 2;`，结果会是 0！",
+    "xp": 20
+  },
+  {
+    "id": 13,
+    "track": "csharp",
+    "chapter": "第2章：算术与运算符",
+    "title": "取模运算符 %：游戏开发的秘密武器",
+    "concept": "`%` 是取模（求余数）运算符。`a % b` 计算 a 除以 b 后的剩余数。在游戏中，常用来做技能冷却倒计时、关卡循环轮转、判断奇数偶数（`x % 2 == 0`）。",
+    "identifierGuide": "关键字：int | 自定义名称：totalSeconds, secondsInMinute",
+    "code": "int totalSeconds = 125;\nint secondsInMinute = totalSeconds % 60;\nConsole.WriteLine(secondsInMinute);",
+    "question": "secondsInMinute（经过125秒后多出来的秒数）计算结果是多少？",
+    "options": [
+      "2",
+      "5",
+      "125",
+      "60"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n125 除以 60，商是 2（2 分钟），余数是 5（5 秒）。\n所以 `125 % 60 = 5`。\n在做游戏计时器（分:秒）显示时，秒数直接用 `% 60` 即可得到！",
+    "xp": 20
+  },
+  {
+    "id": 14,
+    "track": "csharp",
+    "chapter": "第2章：算术与运算符",
+    "title": "得到小数：浮点数除法",
+    "concept": "只要除号 `/` 的任意一边是浮点数（如 `float`），C# 就会自动采用浮点数除法，保留小数位！",
+    "identifierGuide": "关键字：float | 自定义名称：ratio",
+    "code": "float ratio = 7.0f / 2;\nConsole.WriteLine(ratio);",
+    "question": "这次控制台打印出的值是多少？",
+    "options": [
+      "3",
+      "3.5",
+      "3.0",
+      "报错"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n因为 7.0f 是 float 类型，右侧的 2 会被自动提升为浮点数参与运算，7.0f / 2.0f = 3.5f，输出结果为 3.5。",
+    "xp": 20
+  },
+  {
+    "id": 15,
+    "track": "csharp",
+    "chapter": "第2章：算术与运算符",
+    "title": "自增运算符 ++：后置与前置",
+    "concept": "`a++` 等价于 `a = a + 1;`。单独一行写 `a++;` 就是让 a 增加 1。后置 `a++` 表示先使用旧值再加 1，前置 `++a` 表示先加 1 再使用新值。",
+    "identifierGuide": "关键字：int | 自定义名称：combo",
+    "code": "int combo = 0;\ncombo++;\ncombo++;\nConsole.WriteLine(combo);",
+    "question": "连续执行两次自增后，combo 的值是多少？",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "3"
+    ],
+    "answer": 2,
+    "explanation": "【逐步分析】\n初始 combo = 0；\n第1次 combo++ 后，combo 变成 1；\n第2次 combo++ 后，combo 变成 2；\n最终输出 2。连击计数器通常就是这样累加的。",
+    "xp": 20
+  },
+  {
+    "id": 16,
+    "track": "csharp",
+    "chapter": "第2章：算术与运算符",
+    "title": "复合赋值运算符 += 与 -=",
+    "concept": "`hp -= damage;` 是 `hp = hp - damage;` 的简写；`score += 10;` 是 `score = score + 10;` 的简写。简洁直观，是所有游戏代码的标配写法。",
+    "identifierGuide": "关键字：int | 自定义名称：hp, damage",
+    "code": "int hp = 100;\nint damage = 35;\nhp -= damage;\nConsole.WriteLine(hp);",
+    "question": "受到 35 点伤害后，剩余血量 hp 是多少？",
+    "options": [
+      "100",
+      "65",
+      "35",
+      "-35"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n`hp -= damage;` 展开即为 `hp = 100 - 35;`，计算后 hp 更新为 65。",
+    "xp": 20
+  },
+  {
+    "id": 17,
+    "track": "csharp",
+    "chapter": "第2章：算术与运算符",
+    "title": "括号对计算优先级的改变",
+    "concept": "在数学和代码中，括号 `()` 拥有最高执行优先级。括号内的表达式优先计算。",
+    "identifierGuide": "关键字：int | 自定义名称：score",
+    "code": "int score = (2 + 3) * 4;\nConsole.WriteLine(score);",
+    "question": "score 的输出结果是多少？",
+    "options": [
+      "14",
+      "20",
+      "24",
+      "10"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n括号内 `2 + 3 = 5` 先被计算，然后再乘 4：`5 * 4 = 20`。\n如果没有括号 `2 + 3 * 4`，则先乘除后加减：3 * 4 = 12，再加 2 得到 14。",
+    "xp": 20
+  },
+  {
+    "id": 18,
+    "track": "csharp",
+    "chapter": "第2章：算术与运算符",
+    "title": "显式类型转换 (int) 的截断效果",
+    "concept": "要把浮点数强制转为整数，可以在前面加 `(int)`。注意：强制转换并不会进行四舍五入，而是直接抹杀掉所有小数位！",
+    "identifierGuide": "关键字：float, int | 自定义名称：rawDamage, finalDamage",
+    "code": "float rawDamage = 49.9f;\nint finalDamage = (int)rawDamage;\nConsole.WriteLine(finalDamage);",
+    "question": "finalDamage 会输出 50 还是 49？",
+    "options": [
+      "50",
+      "49",
+      "49.9",
+      "报错：无法转换"
+    ],
+    "answer": 1,
+    "explanation": "【核心考点】\n`(int)49.9f` 采用的是向零截断，即使是 .9999 也不会进位，直接扔掉小数，结果为 49。\n如果需要四舍五入，必须使用游戏数学库 `Math.Round()` 或 Unity 的 `Mathf.RoundToInt()`。",
+    "xp": 20
+  },
+  {
+    "id": 19,
+    "track": "csharp",
+    "chapter": "第2章：算术与运算符",
+    "title": "字符 char 与单引号规范",
+    "concept": "`char` 代表单个字符，必须使用【单引号 ' '】包裹（如 `'A'`, `'w'`）。字符串 `string` 包含多字且使用【双引号 \" \"】。两者绝对不能混用。",
+    "identifierGuide": "关键字：char | 自定义名称：moveKey",
+    "code": "char moveKey = 'W';\nConsole.WriteLine(moveKey);",
+    "question": "如果写成 char moveKey = \"W\";（用双引号），会发生什么？",
+    "options": [
+      "正常运行输出 W",
+      "编译报错：无法将 string 隐式转换为 char",
+      "输出 \"W\"",
+      "变成数字 87"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n在 C# 中，双引号代表 string，单引号代表 char。把 string 赋值给 char 会导致编译器报错提示类型不兼容。",
+    "xp": 20
+  },
+  {
+    "id": 20,
+    "track": "csharp",
+    "chapter": "第2章：算术与运算符",
+    "title": "综合实战：暴击伤害公式计算",
+    "concept": "暴击机制是 RPG/动作游戏的核心。通常公式：`最终伤害 = 基础伤害 * 暴击倍率`。",
+    "identifierGuide": "关键字：float, int | 自定义名称：baseAtk, critMultiplier, finalAtk",
+    "code": "int baseAtk = 50;\nfloat critMultiplier = 1.5f;\nint finalAtk = (int)(baseAtk * critMultiplier);\nConsole.WriteLine(finalAtk);",
+    "question": "本次暴击造成的 finalAtk 是多少？",
+    "options": [
+      "50",
+      "75",
+      "100",
+      "75.0"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n1. `50 * 1.5f = 75.0f`（浮点数计算）。\n2. 经过 `(int)` 转换截断为整数 75。\n3. 控制台打印 75。",
+    "xp": 20
+  },
+  {
+    "id": 21,
+    "track": "csharp",
+    "chapter": "第3章：条件分支与逻辑运算",
+    "title": "if 语句基础：有条件地执行代码",
+    "concept": "`if (条件)` 是程序做决策的起点。小括号里的条件必须返回一个 `bool` 值（true 或 false）。如果为 true，就执行大括号 `{}` 内的语句；如果为 false，直接跳过。",
+    "identifierGuide": "关键字：if, int | 自定义名称：coins",
+    "code": "int coins = 100;\nif (coins >= 50)\n{\n    Console.WriteLine(\"金币充足，可以购买！\");\n}",
+    "question": "上述代码会输出提示吗？",
+    "options": [
+      "会输出：金币充足，可以购买！",
+      "不会输出任何内容",
+      "报错",
+      "输出：coins"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\ncoins 的当前值是 100，100 >= 50 为真（true），因此大括号内的打印语句被正常触发。",
+    "xp": 20
+  },
+  {
+    "id": 22,
+    "track": "csharp",
+    "chapter": "第3章：条件分支与逻辑运算",
+    "title": "初学者的致命陷阱：== 等于 vs = 赋值",
+    "concept": "在 C# 中：\n一个等号 `=` 是【赋值】（把右边的值塞给左边）。\n两个等号 `==` 才是【判断两边是否相等】！在 if 条件里一定要用 `==`！",
+    "identifierGuide": "关键字：if, int | 自定义名称：heroHp",
+    "code": "int heroHp = 0;\nif (heroHp == 0)\n{\n    Console.WriteLine(\"英雄阵亡！\");\n}",
+    "question": "如果误写成 if (heroHp = 0)，在 C# 中会怎样？",
+    "options": [
+      "依然能正常判断",
+      "C# 编译器直接报错阻止运行",
+      "heroHp 变成 1",
+      "输出警告但能运行"
+    ],
+    "answer": 1,
+    "explanation": "【核心考点】\n在 C# 中，`heroHp = 0` 的返回值是 int 0，而 if 条件严格要求必须是 bool 类型（true/false），因此 C# 编译器会直接抛出类型错误，拯救程序员免于写出致命 Bug！这是 C# 比 C 语言更安全的地方。",
+    "xp": 20
+  },
+  {
+    "id": 23,
+    "track": "csharp",
+    "chapter": "第3章：条件分支与逻辑运算",
+    "title": "不等于 != 与大小关系比较",
+    "concept": "常用比较运算符：`!=`（不等于）、`>`（大于）、`<`（小于）、`>=`（大于等于）、`<=`（小于等于）。比较的结果都是 bool（true/false）。",
+    "identifierGuide": "关键字：int, bool | 自定义名称：weaponLevel, isMax",
+    "code": "int weaponLevel = 3;\nbool isNotMax = (weaponLevel != 5);\nConsole.WriteLine(isNotMax);",
+    "question": "isNotMax 最终的值是什么？",
+    "options": [
+      "True",
+      "False",
+      "3",
+      "5"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\nweaponLevel 是 3，3 确实不等于 5，所以 `(weaponLevel != 5)` 的判断结果为真（true/True）。",
+    "xp": 20
+  },
+  {
+    "id": 24,
+    "track": "csharp",
+    "chapter": "第3章：条件分支与逻辑运算",
+    "title": "if - else 结构：非此即彼的二选一",
+    "concept": "`if - else` 用于处理两种对立的情况。如果 if 条件成立，执行 if 块；否则一定执行 else 块。二者必居其一。",
+    "identifierGuide": "关键字：if, else, int | 自定义名称：energy",
+    "code": "int energy = 15;\nif (energy >= 20)\n{\n    Console.WriteLine(\"释放大招！\");\n}\nelse\n{\n    Console.WriteLine(\"能量不足！\");\n}",
+    "question": "当 energy 为 15 时，会输出什么？",
+    "options": [
+      "释放大招！",
+      "能量不足！",
+      "两条都会输出",
+      "什么都不输出"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\nenergy = 15，15 >= 20 为 false，if 块被跳过，程序自动转入 else 块，输出“能量不足！”。",
+    "xp": 20
+  },
+  {
+    "id": 25,
+    "track": "csharp",
+    "chapter": "第3章：条件分支与逻辑运算",
+    "title": "else if 多分支：血条危险等级划分",
+    "concept": "当有多种区间需要判断时，使用 `else if`。代码会从上到下逐个检查，【只要有一个条件满足，执行对应代码块后立刻跳出整个结构】，后面的不再检查！",
+    "identifierGuide": "关键字：if, else if, else, int | 自定义名称：hp",
+    "code": "int hp = 45;\nif (hp > 70)\n{\n    Console.WriteLine(\"健康绿色\");\n}\nelse if (hp > 30)\n{\n    Console.WriteLine(\"警惕黄色\");\n}\nelse\n{\n    Console.WriteLine(\"濒死红色\");\n}",
+    "question": "对于 hp = 45，控制台最终会输出哪个颜色？",
+    "options": [
+      "健康绿色",
+      "警惕黄色",
+      "濒死红色",
+      "警惕黄色 和 濒死红色 都会输出"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n1. 检查第1个条件：`hp > 70` (45 > 70 为 false)。\n2. 检查第2个条件：`hp > 30` (45 > 30 为 true！)。\n3. 执行打印“警惕黄色”，随后跳出整个 if-else 链，不会进入 else 块。",
+    "xp": 20
+  },
+  {
+    "id": 26,
+    "track": "csharp",
+    "chapter": "第3章：条件分支与逻辑运算",
+    "title": "逻辑与 &&：所有条件必须同时满足",
+    "concept": "`&&`（逻辑与，表示 AND）。只有当左边和右边的条件【全部为 true】时，整个结果才为 true。只要有一个是 false，结果就是 false。",
+    "identifierGuide": "关键字：if, bool | 自定义名称：hasKey, isNearDoor",
+    "code": "bool hasKey = true;\nbool isNearDoor = false;\nif (hasKey && isNearDoor)\n{\n    Console.WriteLine(\"开门成功！\");\n}\nelse\n{\n    Console.WriteLine(\"无法开门\");\n}",
+    "question": "输出结果是什么？",
+    "options": [
+      "开门成功！",
+      "无法开门",
+      "报错",
+      "同时输出两种情况"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\nhasKey 是 true，但 isNearDoor 是 false。因为 `true && false` 结果为 false，条件不满足，执行 else 块输出“无法开门”。",
+    "xp": 20
+  },
+  {
+    "id": 27,
+    "track": "csharp",
+    "chapter": "第3章：条件分支与逻辑运算",
+    "title": "逻辑或 ||：只要有一个满足即可",
+    "concept": "`||`（逻辑或，表示 OR）。两边条件中【只要有任意一个为 true】，整个结果就是 true。只有当两边全部是 false 时，结果才为 false。",
+    "identifierGuide": "关键字：if, bool, int | 自定义名称：isVip, points",
+    "code": "bool isVip = false;\nint points = 150;\nif (isVip || points >= 100)\n{\n    Console.WriteLine(\"解锁隐藏关卡！\");\n}",
+    "question": "控制台是否会输出“解锁隐藏关卡！”？",
+    "options": [
+      "会输出",
+      "不会输出",
+      "报错",
+      "取决于电脑系统"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\nisVip 是 false，但 points >= 100 (150 >= 100) 为 true。对于 `||`，只要有一侧为 true 整体就为 true，因此成功输出提示。",
+    "xp": 20
+  },
+  {
+    "id": 28,
+    "track": "csharp",
+    "chapter": "第3章：条件分支与逻辑运算",
+    "title": "逻辑非 !：真变假，假变真",
+    "concept": "`!`（逻辑非，表示 NOT）。放在 bool 前面用于取反：`!true` 变成 `false`，`!false` 变成 `true`。常用于判断“如果不处于某种状态”。",
+    "identifierGuide": "关键字：if, bool | 自定义名称：isMuted",
+    "code": "bool isMuted = false;\nif (!isMuted)\n{\n    Console.WriteLine(\"播放背景音乐\");\n}",
+    "question": "当前代码是否会执行播放音乐？",
+    "options": [
+      "会播放",
+      "不会播放，被静音了",
+      "报错：叹号不能加在变量前",
+      "音乐音量翻倍"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\nisMuted 值为 false（未静音）。`!isMuted` 就是 `!false`，计算后为 true，所以 if 判定成功，输出“播放背景音乐”。",
+    "xp": 20
+  },
+  {
+    "id": 29,
+    "track": "csharp",
+    "chapter": "第3章：条件分支与逻辑运算",
+    "title": "短路求值特性（Short-circuiting）",
+    "concept": "在 `A && B` 中，如果 A 已经是 false，C# 根本不会再去执行 B（因为整体必定是 false）；同理在 `A || B` 中，如果 A 已经是 true，也不会再去执行 B。",
+    "identifierGuide": "关键字：if, int | 自定义名称：bullets",
+    "code": "int bullets = 0;\n// 注意右边如果执行可能会导致除以零，但由于短路特性：\nif (bullets > 0 && (10 / bullets) > 1)\n{\n    Console.WriteLine(\"可以射击\");\n}\nelse\n{\n    Console.WriteLine(\"弹药耗尽\");\n}",
+    "question": "上述代码会发生除以零崩溃报错，还是正常输出？",
+    "options": [
+      "崩溃报错：DivideByZeroException",
+      "正常输出：弹药耗尽",
+      "正常输出：可以射击",
+      "程序死机"
+    ],
+    "answer": 1,
+    "explanation": "【核心考点】\nbullets 是 0，左侧 `bullets > 0` (0 > 0) 为 false。因为是 `&&` 运算，C# 触发短路求值，直接判定整体为 false，根本不会去计算右边的 `10 / bullets`，从而安全避开除以零错误，顺利走入 else 块！",
+    "xp": 20
+  },
+  {
+    "id": 30,
+    "track": "csharp",
+    "chapter": "第3章：条件分支与逻辑运算",
+    "title": "游戏防守逻辑：护盾抵扣伤害",
+    "concept": "综合 if-else 的游戏逻辑：当玩家受到攻击时，若护盾大于 0，先扣护盾；若护盾为 0，直接扣血。",
+    "identifierGuide": "关键字：if, else, int | 自定义名称：shield, hp, hitDamage",
+    "code": "int shield = 20;\nint hp = 100;\nint hitDamage = 15;\n\nif (shield >= hitDamage)\n{\n    shield -= hitDamage;\n}\nelse\n{\n    hp -= hitDamage;\n}\nConsole.WriteLine($\"盾:{shield}, 血:{hp}\");",
+    "question": "受击后输出的 shield 和 hp 分别是多少？",
+    "options": [
+      "盾:20, 血:85",
+      "盾:5, 血:100",
+      "盾:5, 血:85",
+      "盾:0, 血:95"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n1. shield 是 20，hitDamage 是 15。\n2. 条件 `shield >= hitDamage` (20 >= 15) 为 true。\n3. 执行 `shield -= hitDamage`，盾牌剩余 20 - 15 = 5。\n4. hp 保持不变仍为 100。输出“盾:5, 血:100”。",
+    "xp": 20
+  },
+  {
+    "id": 31,
+    "track": "csharp",
+    "chapter": "第4章：循环控制结构",
+    "title": "for 循环的三大核心构件",
+    "concept": "`for (初始语句; 循环条件; 迭代步长)` 包含三个分号隔开的要素：\n1. 初始语句（如 `int i = 0`）：只在开始前执行一次。\n2. 循环条件（如 `i < 3`）：每次循环前检查，为 true 才执行。\n3. 迭代步长（如 `i++`）：每次循环体执行完后执行。",
+    "identifierGuide": "关键字：for, int | 自定义名称：i",
+    "code": "for (int i = 0; i < 3; i++)\n{\n    Console.Write(i + \" \");\n}",
+    "question": "这段代码打印的内容是？",
+    "options": [
+      "0 1 2 ",
+      "1 2 3 ",
+      "0 1 2 3 ",
+      "0 0 0 "
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\n第1次：i=0，0<3成立，打印 0 ，随后 i++ 变为 1；\n第2次：i=1，1<3成立，打印 1 ，随后 i++ 变为 2；\n第3次：i=2，2<3成立，打印 2 ，随后 i++ 变为 3；\n第4次：i=3，3<3为 false，循环终止！总共输出 \"0 1 2 \"。",
+    "xp": 20
+  },
+  {
+    "id": 32,
+    "track": "csharp",
+    "chapter": "第4章：循环控制结构",
+    "title": "循环次数判断：i <= 3 与 i < 3",
+    "concept": "注意边界符号！`i < 3`（从 0 开始，取 0, 1, 2 共 3 次）；而 `i <= 3`（取 0, 1, 2, 3 共 4 次）。这是导致游戏逻辑多跑一次的经典“差一错误（Off-by-one error）”。",
+    "identifierGuide": "关键字：for, int | 自定义名称：count, k",
+    "code": "int count = 0;\nfor (int k = 0; k <= 3; k++)\n{\n    count++;\n}\nConsole.WriteLine(count);",
+    "question": "循环结束后 count 的值是几？",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "0"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\nk 从 0 开始，满足 `<= 3` 的值有：0, 1, 2, 3，总共经历了 4 次循环迭代，所以 count++ 执行了 4 次，最终 count 为 4。",
+    "xp": 20
+  },
+  {
+    "id": 33,
+    "track": "csharp",
+    "chapter": "第4章：循环控制结构",
+    "title": "倒计时循环：递减迭代 i--",
+    "concept": "循环不仅可以正向递增，还可以逆向倒数。例如发射火箭倒计时：从 3 开始，每次减 1，条件是 `i > 0`。",
+    "identifierGuide": "关键字：for, int | 自定义名称：i",
+    "code": "for (int i = 3; i > 0; i--)\n{\n    Console.Write(i + \"..\");\n}\nConsole.Write(\"发射!\");",
+    "question": "控制台打印出的完整文本是？",
+    "options": [
+      "3..2..1..发射!",
+      "3..2..1..0..发射!",
+      "1..2..3..发射!",
+      "死循环不断打印 3"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\ni=3，大于0，打 3..，i 变 2；\ni=2，大于0，打 2..，i 变 1；\ni=1，大于0，打 1..，i 变 0；\ni=0，0 > 0 不成立，退出循环，最后打印“发射!”。完整内容：3..2..1..发射!",
+    "xp": 20
+  },
+  {
+    "id": 34,
+    "track": "csharp",
+    "chapter": "第4章：循环控制结构",
+    "title": "步长调节：i += 2 跳跃循环",
+    "concept": "步长不一定是 `i++`。如果我们写 `i += 2`，计数器每次就会跳过 2，常用于遍历网格中所有偶数或奇数格子。",
+    "identifierGuide": "关键字：for, int | 自定义名称：i",
+    "code": "for (int i = 0; i < 6; i += 2)\n{\n    Console.Write(i + \" \");\n}",
+    "question": "打印出来的数字序列是？",
+    "options": [
+      "0 1 2 3 4 5 ",
+      "0 2 4 ",
+      "0 2 4 6 ",
+      "2 4 6 "
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\ni 初始为 0（打印 0）；\ni += 2 变为 2，小于 6（打印 2）；\ni += 2 变为 4，小于 6（打印 4）；\ni += 2 变为 6，6 < 6 为 false，结束循环！结果为 \"0 2 4 \"。",
+    "xp": 20
+  },
+  {
+    "id": 35,
+    "track": "csharp",
+    "chapter": "第4章：循环控制结构",
+    "title": "循环累加求和：计算战利品总值",
+    "concept": "在循环外部定义一个累加器变量（如 `sum = 0`），在循环内部使用 `sum += ...` 逐项叠加，是游戏结算总分、总金币的基本套路。",
+    "identifierGuide": "关键字：for, int | 自定义名称：totalGold, round",
+    "code": "int totalGold = 0;\nfor (int round = 1; round <= 3; round++)\n{\n    totalGold += 10;\n}\nConsole.WriteLine(totalGold);",
+    "question": "循环结束后，totalGold 的总金币数是多少？",
+    "options": [
+      "10",
+      "20",
+      "30",
+      "40"
+    ],
+    "answer": 2,
+    "explanation": "【逐步分析】\nround 从 1 到 3 一共执行 3 轮（round=1, 2, 3）。每轮 `totalGold += 10`，总共加了 3 次 10，所以 10 * 3 = 30。",
+    "xp": 20
+  },
+  {
+    "id": 36,
+    "track": "csharp",
+    "chapter": "第4章：循环控制结构",
+    "title": "while 循环：只要条件成立就一直跑",
+    "concept": "`while (条件)` 会在每次开始前检查条件，只要为 true 就会不断执行，直到条件变为 false。非常适合处理“不知道具体循环几次，直到某个目标达成”的场景。",
+    "identifierGuide": "关键字：while, int | 自定义名称：fuel",
+    "code": "int fuel = 3;\nwhile (fuel > 0)\n{\n    fuel--;\n}\nConsole.WriteLine(fuel);",
+    "question": "while 循环结束后，fuel 的值是多少？",
+    "options": [
+      "3",
+      "1",
+      "0",
+      "-1"
+    ],
+    "answer": 2,
+    "explanation": "【逐步分析】\n第1次：fuel=3，大于0成立，fuel-- 变为 2；\n第2次：fuel=2，大于0成立，fuel-- 变为 1；\n第3次：fuel=1，大于0成立，fuel-- 变为 0；\n第4次：fuel=0，0 > 0 不成立，退出循环，输出 0。",
+    "xp": 20
+  },
+  {
+    "id": 37,
+    "track": "csharp",
+    "chapter": "第4章：循环控制结构",
+    "title": "break 关键字：紧急刹车跳出循环",
+    "concept": "`break;` 能够瞬间终结当前循环，不论循环条件是否还满足，程序立刻跳出循环体，继续执行后面的代码。例如找到目标敌人后立即停止搜索。",
+    "identifierGuide": "关键字：for, break, if, int | 自定义名称：step",
+    "code": "for (int step = 1; step <= 10; step++)\n{\n    if (step == 3)\n    {\n        break;\n    }\n    Console.Write(step + \" \");\n}",
+    "question": "控制台打印的结果是？",
+    "options": [
+      "1 2 ",
+      "1 2 3 ",
+      "1 2 3 4 5 6 7 8 9 10 ",
+      "3 "
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\nstep=1：不等于3，打印 1 ；\nstep=2：不等于3，打印 2 ；\nstep=3：满足 `step == 3`，执行 `break;`，循环直接彻底结束！所以 3 根本没有机会被打印，输出结果是 \"1 2 \"。",
+    "xp": 20
+  },
+  {
+    "id": 38,
+    "track": "csharp",
+    "chapter": "第4章：循环控制结构",
+    "title": "continue 关键字：跳过本次，继续下轮",
+    "concept": "`continue;` 不会终止整个循环，而是【立即结束本次迭代】，跳过本次循环剩下的代码，直接进入下一次的步长递增和条件检查。",
+    "identifierGuide": "关键字：for, continue, if, int | 自定义名称：i",
+    "code": "for (int i = 1; i <= 4; i++)\n{\n    if (i == 2)\n    {\n        continue;\n    }\n    Console.Write(i + \" \");\n}",
+    "question": "打印出来的数字有哪些？",
+    "options": [
+      "1 2 3 4 ",
+      "1 3 4 ",
+      "1 ",
+      "2 "
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\ni=1：正常打印 1 ；\ni=2：遇到 `continue;`，本次剩下的代码被跳过，不打印 2，直接进入下一次循环；\ni=3：正常打印 3 ；\ni=4：正常打印 4 ；\n最终结果为 \"1 3 4 \"。常用于在游戏中跳过死亡或无效的目标。",
+    "xp": 20
+  },
+  {
+    "id": 39,
+    "track": "csharp",
+    "chapter": "第4章：循环控制结构",
+    "title": "嵌套 for 循环：生成 2D 网格坐标",
+    "concept": "游戏地图通常有行（y）和列（x）。一个外层 for 循环嵌套一个内层 for 循环，外层每走 1 步，内层都要从头到尾完整跑一遍！",
+    "identifierGuide": "关键字：for, int | 自定义名称：row, col",
+    "code": "int dotCount = 0;\nfor (int row = 0; row < 2; row++)\n{\n    for (int col = 0; col < 3; col++)\n    {\n        dotCount++;\n    }\n}\nConsole.WriteLine(dotCount);",
+    "question": "双重循环一共迭代了多少次（dotCount 最终是多少）？",
+    "options": [
+      "5",
+      "6",
+      "2",
+      "3"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n外层 row 循环 2 次（row = 0, 1）。\n每一行中，内层 col 都要循环 3 次（col = 0, 1, 2）。\n总执行次数 = 2 * 3 = 6 次。这就是生成 2x3 网格地图的核心算法。",
+    "xp": 20
+  },
+  {
+    "id": 40,
+    "track": "csharp",
+    "chapter": "第4章：循环控制结构",
+    "title": "循环变量作用域（Scope）陷阱",
+    "concept": "在 `for (int i = 0; ...)` 中声明的变量 `i`，其作用域仅限于该 for 循环的大括号内部。在循环外部直接访问 `i` 会导致编译报错！",
+    "identifierGuide": "关键字：for, int | 自定义名称：i",
+    "code": "for (int i = 0; i < 5; i++)\n{\n    // 循环体内\n}\n// 如果在这行写：Console.WriteLine(i); 会怎样？",
+    "question": "在循环大括号外面尝试访问 i 会发生什么？",
+    "options": [
+      "输出 5",
+      "输出 4",
+      "编译报错：当前上下文中不存在名称 'i'",
+      "输出 0"
+    ],
+    "answer": 2,
+    "explanation": "【核心考点】\n局部变量遵循作用域规则：在大括号 `{}` 内声明的变量，离开大括号后就被系统销毁了。若想在循环外使用计数结果，必须在循环外层提前声明变量。",
+    "xp": 20
+  },
+  {
+    "id": 41,
+    "track": "csharp",
+    "chapter": "第5章：数组与游戏逻辑模式",
+    "title": "数组声明与初始化",
+    "concept": "数组是连续存储相同类型数据的容器。`int[] scores = { 90, 85, 95 };` 创建了一个包含 3 个整数的数组。方括号 `[]` 是数组的标志符号。",
+    "identifierGuide": "关键字：int | 自定义名称：scores",
+    "code": "int[] scores = { 90, 85, 95 };\nConsole.WriteLine(scores[0]);",
+    "question": "输出结果是什么？",
+    "options": [
+      "90",
+      "85",
+      "95",
+      "scores"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\n在绝大多数编程语言（包括 C# 和 JavaScript）中，【数组下标索引都是从 0 开始计数的】！\n第 1 个元素是 `scores[0]`（值为 90）；\n第 2 个元素是 `scores[1]`（值为 85）；\n第 3 个元素是 `scores[2]`（值为 95）。",
+    "xp": 20
+  },
+  {
+    "id": 42,
+    "track": "csharp",
+    "chapter": "第5章：数组与游戏逻辑模式",
+    "title": "数组长度属性 .Length",
+    "concept": "每个数组都有一个属性 `.Length`，表示数组里总共容纳了多少个元素。注意：最后一个元素的下标总是 `.Length - 1`！",
+    "identifierGuide": "关键字：string | 自定义名称：items",
+    "code": "string[] items = { \"木剑\", \"草药\", \"铁盾\", \"金币\" };\nConsole.WriteLine(items.Length);",
+    "question": "items.Length 的输出值是多少？",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "\"金币\""
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n数组内有 4 个物品，因此 `items.Length` 等于 4。其下标分别为 0, 1, 2, 3。",
+    "xp": 20
+  },
+  {
+    "id": 43,
+    "track": "csharp",
+    "chapter": "第5章：数组与游戏逻辑模式",
+    "title": "常见崩溃元凶：IndexOutOfRangeException 越界",
+    "concept": "如果数组长度为 3（有效下标是 0, 1, 2），你偏要去访问 `array[3]`，程序就会直接抛出【索引超出范围异常】而闪退崩溃！",
+    "identifierGuide": "关键字：int | 自定义名称：data",
+    "code": "int[] data = { 10, 20, 30 };\nConsole.WriteLine(data[3]);",
+    "question": "运行上面两行代码会发生什么？",
+    "options": [
+      "输出 0",
+      "输出 30",
+      "抛出 IndexOutOfRangeException 异常（数组越界）",
+      "输出 null"
+    ],
+    "answer": 2,
+    "explanation": "【核心考点】\n长度为 3 的数组，最大下标是 2。访问下标 3 属于严重的非法越界访问，在 Unity 中会导致游戏报错卡死。",
+    "xp": 20
+  },
+  {
+    "id": 44,
+    "track": "csharp",
+    "chapter": "第5章：数组与游戏逻辑模式",
+    "title": "经典组合：用 for 循环遍历背包数组",
+    "concept": "`for (int i = 0; i < array.Length; i++)` 是遍历数组的黄金模板。下标 `i` 刚好从 0 遍历到 `Length - 1`，不多也不少！",
+    "identifierGuide": "关键字：for, int | 自定义名称：i, expList, total",
+    "code": "int[] expList = { 10, 20, 30 };\nint total = 0;\nfor (int i = 0; i < expList.Length; i++)\n{\n    total += expList[i];\n}\nConsole.WriteLine(total);",
+    "question": "遍历求和后 total 的值是多少？",
+    "options": [
+      "30",
+      "50",
+      "60",
+      "0"
+    ],
+    "answer": 2,
+    "explanation": "【逐步分析】\n循环跑 3 次：\ni=0 时 total += 10 (total=10)\ni=1 时 total += 20 (total=30)\ni=2 时 total += 30 (total=60)\n最终输出 60。",
+    "xp": 20
+  },
+  {
+    "id": 45,
+    "track": "csharp",
+    "chapter": "第5章：数组与游戏逻辑模式",
+    "title": "方法的定义与返回值",
+    "concept": "方法（Method）是完成特定任务的代码块。`int Add(int a, int b)` 中，前面的 `int` 代表返回值的类型，`Add` 是方法名，小括号内是接收的参数。",
+    "identifierGuide": "关键字：int, return | 自定义名称：CalculateDamage",
+    "code": "int CalculateDamage(int atk, int def)\n{\n    return atk - def;\n}\n// 调用处：\nint dmg = CalculateDamage(50, 20);\nConsole.WriteLine(dmg);",
+    "question": "dmg 最终接收到的返回值是多少？",
+    "options": [
+      "50",
+      "20",
+      "30",
+      "70"
+    ],
+    "answer": 2,
+    "explanation": "【逐步分析】\n调用 `CalculateDamage(50, 20)` 时，50 传给 atk，20 传给 def。方法内部计算 `50 - 20` 并通过 `return` 返回 30。因此 dmg = 30。",
+    "xp": 20
+  },
+  {
+    "id": 46,
+    "track": "csharp",
+    "chapter": "第5章：数组与游戏逻辑模式",
+    "title": "void 关键字：不产生返回值的方法",
+    "concept": "如果一个方法只需要执行动作（比如播放音效、显示提示），不需要向调用者交回数据，它的返回值类型就要写成 `void`（意为“虚无”）。",
+    "identifierGuide": "关键字：void | 自定义名称：PlaySfx",
+    "code": "void PlaySfx(string soundName)\n{\n    Console.WriteLine(\"播放音效: \" + soundName);\n}\n// 调用：\nPlaySfx(\"levelup.wav\");",
+    "question": "关于 void 方法，下列说法正确的是？",
+    "options": [
+      "必须写 return 一个整数",
+      "不能包含参数",
+      "执行动作但不返回数值结果",
+      "会返回 false"
+    ],
+    "answer": 2,
+    "explanation": "【逐步分析】\nvoid 专门用于标识无返回值方法。它不需要 `return 变量;`，只要执行内部语句即可。",
+    "xp": 20
+  },
+  {
+    "id": 47,
+    "track": "csharp",
+    "chapter": "第5章：数组与游戏逻辑模式",
+    "title": "方法参数与局部变量隔离",
+    "concept": "在普通值类型传递中，方法内部修改形参的值，并不会影响外部传入的原始变量。它们各自占有不同的内存空间。",
+    "identifierGuide": "关键字：void, int | 自定义名称：Boost, heroPower",
+    "code": "void Boost(int power)\n{\n    power = power + 10;\n}\n\nint heroPower = 50;\nBoost(heroPower);\nConsole.WriteLine(heroPower);",
+    "question": "调用 Boost 后，heroPower 的值是多少？",
+    "options": [
+      "60",
+      "50",
+      "10",
+      "0"
+    ],
+    "answer": 1,
+    "explanation": "【核心考点】\nC# 默认按值传递（Pass by Value）。外部将 50 复制了一份给参数 power，方法内修改的是副本，外部的 heroPower 毫发无损仍为 50！",
+    "xp": 20
+  },
+  {
+    "id": 48,
+    "track": "csharp",
+    "chapter": "第5章：数组与游戏逻辑模式",
+    "title": "游戏状态机模式（Game State Machine）",
+    "concept": "看 AI 写的游戏代码时，常会看到用状态变量控制游戏生命周期：`0=菜单(Menu), 1=游玩中(Playing), 2=结算(GameOver)`。",
+    "identifierGuide": "关键字：if, else if, int | 自定义名称：gameState",
+    "code": "int gameState = 1;\nif (gameState == 0) Console.WriteLine(\"主菜单\");\nelse if (gameState == 1) Console.WriteLine(\"正在激烈战斗中\");\nelse if (gameState == 2) Console.WriteLine(\"游戏结束，结算成绩\");",
+    "question": "当前输出的状态文本是哪一项？",
+    "options": [
+      "主菜单",
+      "正在激烈战斗中",
+      "游戏结束，结算成绩",
+      "什么都不输出"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\ngameState 当前等于 1，命中 `else if (gameState == 1)`，打印“正在激烈战斗中”。",
+    "xp": 20
+  },
+  {
+    "id": 49,
+    "track": "csharp",
+    "chapter": "第5章：数组与游戏逻辑模式",
+    "title": "数值钳制 Clamp 模式：生命值不超限",
+    "concept": "回血时不能超过最大生命值上限（maxHp），扣血时不能跌破 0。这就是游戏开发中的【Clamp（钳制）逻辑】。",
+    "identifierGuide": "关键字：if, int | 自定义名称：currentHp, maxHp, healAmount",
+    "code": "int currentHp = 80;\nint maxHp = 100;\nint healAmount = 50;\n\ncurrentHp += healAmount;\nif (currentHp > maxHp)\n{\n    currentHp = maxHp;\n}\nConsole.WriteLine(currentHp);",
+    "question": "经过治疗并钳制后，currentHp 的值是多少？",
+    "options": [
+      "130",
+      "100",
+      "80",
+      "50"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n1. `currentHp += 50` 变成 130；\n2. 触发检查 `130 > 100` 为 true；\n3. 执行 `currentHp = maxHp`，把生命值强行拉回上限 100！输出 100。",
+    "xp": 20
+  },
+  {
+    "id": 50,
+    "track": "csharp",
+    "chapter": "第5章：数组与游戏逻辑模式",
+    "title": "C# 终极综合实战：看懂 AI 生成的 Unity 角色受击逻辑",
+    "concept": "学到这里，你已经掌握了 C# 基础语法！现在我们来看一段真实 Unity 游戏角色的受击伤害计算代码，综合了变量、条件、布尔与减法。",
+    "identifierGuide": "关键字：if, else, void, int, bool | 自定义名称：TakeDamage, isDead",
+    "code": "int hp = 25;\nbool isDead = false;\n\nvoid TakeDamage(int damage)\n{\n    hp -= damage;\n    if (hp <= 0)\n    {\n        hp = 0;\n        isDead = true;\n    }\n}\n\nTakeDamage(30);\nConsole.WriteLine($\"血量:{hp}, 是否死亡:{isDead}\");",
+    "question": "受击 30 点伤害后，最终输出的血量与死亡状态是？",
+    "options": [
+      "血量:-5, 是否死亡:False",
+      "血量:0, 是否死亡:True",
+      "血量:0, 是否死亡:False",
+      "血量:25, 是否死亡:False"
+    ],
+    "answer": 1,
+    "explanation": "【通篇代码串讲】\n1. 角色初始 hp 为 25；\n2. 调用 `TakeDamage(30)`，传入伤害 30；\n3. 执行 `hp -= 30`，hp 暂时变为 -5；\n4. 判断 `if (hp <= 0)` 为真，执行 `hp = 0; isDead = true;`；\n5. 输出“血量:0, 是否死亡:True”。恭喜你成功读懂了完整的游戏底层逻辑！",
+    "xp": 25
+  },
+  {
+    "id": 51,
+    "track": "p5js",
+    "chapter": "第6章：画布与图形坐标系",
+    "title": "p5.js 的两大支柱：setup 与 draw",
+    "concept": "p5.js 程序有两个核心内置函数：\n1. `setup()`：在程序启动时【只执行一次】，用于初始化画布大小。\n2. `draw()`：在 setup 之后【以每秒约 60 帧的速度无限循环执行】，用于驱动动画和交互！",
+    "identifierGuide": "关键字/内置函数：function, setup, draw | 自定义名称：无",
+    "code": "function setup() {\n  // 这里的代码执行几次？\n}\nfunction draw() {\n  // 这里的代码执行几次？\n}",
+    "question": "在正常情况下，setup() 和 draw() 分别执行多少次？",
+    "options": [
+      "setup 执行一次，draw 循环执行（约60次/秒）",
+      "setup 循环执行，draw 执行一次",
+      "两者都只执行一次",
+      "两者都无限循环"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\n这是 p5.js 最基本的生命周期！setup() 就像演员上台前化妆，只做一次；draw() 就像放映机胶片，一秒钟循环刷新 60 次，从而产生流畅的动态视觉。",
+    "xp": 20
+  },
+  {
+    "id": 52,
+    "track": "p5js",
+    "chapter": "第6章：画布与图形坐标系",
+    "title": "创建画板：createCanvas",
+    "concept": "`createCanvas(w, h)` 是画板的出生证明，接受两个参数：宽度（width）和高度（height），单位是像素（pixel）。通常写在 `setup()` 的第一行。",
+    "identifierGuide": "关键字/内置函数：function, createCanvas | 自定义名称：无",
+    "code": "function setup() {\n  createCanvas(400, 300);\n}",
+    "question": "上述代码创建的画布尺寸是多大？",
+    "options": [
+      "宽 300 像素，高 400 像素",
+      "宽 400 像素，高 300 像素",
+      "正方形 400x400",
+      "全屏画布"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n`createCanvas(宽度, 高度)` 参数顺序固定：第 1 个是宽度（横向 X），第 2 个是高度（纵向 Y）。所以这里是宽 400 像素，高 300 像素。",
+    "xp": 20
+  },
+  {
+    "id": 53,
+    "track": "p5js",
+    "chapter": "第6章：画布与图形坐标系",
+    "title": "图形学坐标系的颠覆：原点 (0,0) 在左上角！",
+    "concept": "注意！数字媒体与屏幕图形学的坐标系与数学课本里的笛卡尔坐标系完全不同：【原点 (0, 0) 在屏幕画面的最左上角】！",
+    "identifierGuide": "内置函数：point, createCanvas | 自定义名称：无",
+    "code": "// 屏幕原点 (0, 0) 在哪里？\npoint(0, 0);",
+    "question": "坐标 (0, 0) 位于画布的哪个位置？",
+    "options": [
+      "画布正中心",
+      "左下角",
+      "左上角",
+      "右上角"
+    ],
+    "answer": 2,
+    "explanation": "【核心考点】\n屏幕扫描自阴极射线管时代起就是从左到右、从上到下，因此所有现代 UI 与游戏引擎（包括网页、Unity UI、p5.js）的屏幕绝对坐标原点 (0,0) 都位于【左上角】！",
+    "xp": 20
+  },
+  {
+    "id": 54,
+    "track": "p5js",
+    "chapter": "第6章：画布与图形坐标系",
+    "title": "Y 轴正方向：往下才是变大！",
+    "concept": "由于原点在左上角：\n- X 轴向右：数值越来越大；\n- Y 轴向下：【数值越来越大】！\n如果想让物体在屏幕上下落，Y 坐标必须【增加】而不是减少！",
+    "identifierGuide": "内置函数：circle | 自定义名称：无",
+    "code": "// 圆A 在 (100, 50)\ncircle(100, 50, 20);\n// 圆B 在 (100, 150)\ncircle(100, 150, 20);",
+    "question": "在视觉画面上，圆 B 相比圆 A 处于什么方位？",
+    "options": [
+      "圆 B 在圆 A 的正上方",
+      "圆 B 在圆 A 的正下方",
+      "圆 B 在圆 A 的正左方",
+      "圆 B 在圆 A 的正右方"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n两圆 X 相同（都是 100）。圆 A 的 Y=50，圆 B 的 Y=150。因为在屏幕坐标系中 Y 轴向下递增，Y 值更大的圆 B 会处于圆 A 的【正下方】！",
+    "xp": 20
+  },
+  {
+    "id": 55,
+    "track": "p5js",
+    "chapter": "第6章：画布与图形坐标系",
+    "title": "内置系统变量：width 与 height",
+    "concept": "p5.js 贴心地提供了两个全局系统变量：`width`（当前画布总宽度）和 `height`（当前画布总高度）。它们的值与 `createCanvas` 设定的数字自动同步。",
+    "identifierGuide": "系统内置变量：width, height | 自定义名称：无",
+    "code": "function setup() {\n  createCanvas(600, 400);\n  console.log(width, height);\n}",
+    "question": "控制台打印输出的两个数字分别是？",
+    "options": [
+      "600 400",
+      "400 600",
+      "0 0",
+      "undefined undefined"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\n`createCanvas(600, 400)` 之后，系统自动将 width 赋值为 600，height 赋值为 400，在整个程序的任何地方都可以直接拿来用。",
+    "xp": 20
+  },
+  {
+    "id": 56,
+    "track": "p5js",
+    "chapter": "第6章：画布与图形坐标系",
+    "title": "灰度颜色：background(220)",
+    "concept": "`background()` 用于给画布刷底色。如果只传一个数字（0~255），代表【灰度值】：0 代表极致的纯黑，255 代表纯白，中间的数值是不同深浅的灰色。",
+    "identifierGuide": "内置函数：background | 自定义名称：无",
+    "code": "background(0); // 纯黑底色\nbackground(255); // 纯白底色",
+    "question": "如果想要一个中等灰度的背景，应该传入哪个数值？",
+    "options": [
+      "0",
+      "128",
+      "255",
+      "-100"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n灰度范围是 0 到 255。中间值 `255 / 2 ≈ 128` 是标准的中性灰色（50% Gray）。",
+    "xp": 20
+  },
+  {
+    "id": 57,
+    "track": "p5js",
+    "chapter": "第6章：画布与图形坐标系",
+    "title": "RGB 三原色通道：Red, Green, Blue",
+    "concept": "当传入三个参数时：`background(R, G, B)`。\n- 第1个：红色（0-255）\n- 第2个：绿色（0-255）\n- 第3个：蓝色（0-255）",
+    "identifierGuide": "内置函数：background | 自定义名称：无",
+    "code": "background(255, 0, 0);",
+    "question": "这行代码会把画布染成什么颜色？",
+    "options": [
+      "纯红色",
+      "纯绿色",
+      "纯蓝色",
+      "黑色"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\nRGB 参数中，R=255（满红色），G=0，B=0。没有任何绿和蓝，所以画布是浓烈纯正的红色。",
+    "xp": 20
+  },
+  {
+    "id": 58,
+    "track": "p5js",
+    "chapter": "第6章：画布与图形坐标系",
+    "title": "画布中心坐标公式：width/2, height/2",
+    "concept": "在创意编程和游戏UI中，要把物体精确放在屏幕正中间，永远不要写死固定数字，而是写 `width / 2` 和 `height / 2`，这样即使画布尺寸改变，物体依然完美居中！",
+    "identifierGuide": "系统变量：width, height | 内置函数：circle",
+    "code": "createCanvas(800, 600);\ncircle(width / 2, height / 2, 50);",
+    "question": "这个圆形的圆心坐标是？",
+    "options": [
+      "(400, 300)",
+      "(800, 600)",
+      "(200, 150)",
+      "(0, 0)"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\nwidth 是 800，800 / 2 = 400；height 是 600，600 / 2 = 300。圆心位于 (400, 300)，正是画布几何中心。",
+    "xp": 20
+  },
+  {
+    "id": 59,
+    "track": "p5js",
+    "chapter": "第6章：画布与图形坐标系",
+    "title": "点图元 point(x, y)",
+    "concept": "`point(x, y)` 在指定坐标点画一个像素点。如果觉得太小看不见，可以使用 `strokeWeight(粗细)` 把它放大成一个小圆点。",
+    "identifierGuide": "内置函数：point, strokeWeight | 自定义名称：无",
+    "code": "strokeWeight(10);\npoint(50, 80);",
+    "question": "point(50, 80) 中的 50 和 80 分别代表什么？",
+    "options": [
+      "50 是半径，80 是角度",
+      "50 是横坐标 X，80 是纵坐标 Y",
+      "50 是颜色，80 是粗细",
+      "50 是高度，80 是宽度"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\np5.js 图元函数的前两个参数几乎统一代表位置：X（横向水平距离）和 Y（纵向垂直距离）。",
+    "xp": 20
+  },
+  {
+    "id": 60,
+    "track": "p5js",
+    "chapter": "第6章：画布与图形坐标系",
+    "title": "线段图元 line(x1, y1, x2, y2)",
+    "concept": "两点确定一条直线。`line()` 接受 4 个参数：起点坐标 (x1, y1) 和 终点坐标 (x2, y2)。",
+    "identifierGuide": "内置函数：line | 自定义名称：无",
+    "code": "line(0, 0, 100, 100);",
+    "question": "这条线段的起点在哪里，朝哪个方向延伸？",
+    "options": [
+      "从左下角画向右上角",
+      "从左上角 (0,0) 画向右下方 (100,100)",
+      "从中心画向四周",
+      "水平画出一条横线"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n起点 (0,0) 是左上角。终点 (100,100) 相比起点，X 变大（向右 100），Y 变大（向下 100），所以是一条从左上方向右下方倾斜的对角斜线。",
+    "xp": 20
+  },
+  {
+    "id": 61,
+    "track": "p5js",
+    "chapter": "第7章：几何图元与色彩样式",
+    "title": "矩形 rect(x, y, w, h) 与默认锚点",
+    "concept": "`rect(x, y, w, h)` 绘制矩形：x, y 是位置，w 是宽度，h 是高度。注意：默认情况下，(x, y) 对应的是矩形的【左上角顶点】，而不是中心！",
+    "identifierGuide": "内置函数：rect | 自定义名称：无",
+    "code": "rect(50, 50, 100, 60);",
+    "question": "这个矩形的右下角坐标是哪个点？",
+    "options": [
+      "(100, 60)",
+      "(150, 110)",
+      "(50, 50)",
+      "(150, 60)"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n左上角在 (50, 50)。\n向右宽 100，所以右边界 X = 50 + 100 = 150。\n向下高 60，所以下边界 Y = 50 + 60 = 110。\n右下角顶点坐标就是 (150, 110)！在做 2D 碰撞检测时经常要算这个！",
+    "xp": 20
+  },
+  {
+    "id": 62,
+    "track": "p5js",
+    "chapter": "第7章：几何图元与色彩样式",
+    "title": "圆形 circle(x, y, d) 与直径",
+    "concept": "`circle(x, y, d)` 绘制正圆形。前两个参数是【圆心坐标】，第三个参数是【直径 d】（不是半径！）。",
+    "identifierGuide": "内置函数：circle | 自定义名称：无",
+    "code": "circle(200, 200, 80);",
+    "question": "这个圆的半径（Radius）是多少？",
+    "options": [
+      "80",
+      "40",
+      "160",
+      "200"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n参数 d 代表 diameter（直径）。直径是 80，半径就是直径的一半：`80 / 2 = 40`。\n【AI代码小贴士】做圆与圆碰撞检测时，碰撞距离等于两个圆的半径之和（即 d1/2 + d2/2）。",
+    "xp": 20
+  },
+  {
+    "id": 63,
+    "track": "p5js",
+    "chapter": "第7章：几何图元与色彩样式",
+    "title": "fill() 染色：状态机的本质",
+    "concept": "p5.js 是【状态机模式】。一旦调用了 `fill(颜色)`，它就像把画笔蘸上了颜料，【之后画出来的所有形状】都会染上这个颜色，直到你再次调用 fill 换颜色！",
+    "identifierGuide": "内置函数：fill, rect, circle | 自定义名称：无",
+    "code": "fill(255, 0, 0); // 红色\nrect(0, 0, 50, 50);\ncircle(100, 100, 50);",
+    "question": "后面的 circle（圆形）会呈现什么颜色？",
+    "options": [
+      "默认白色",
+      "红色",
+      "透明色",
+      "黑色"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n因为 fill 是全局绘制状态，对后续所有图元持续生效。虽然 circle 前面没写 fill，但依然沿用了上面蘸好的红色，所以圆形也是红色的！",
+    "xp": 20
+  },
+  {
+    "id": 64,
+    "track": "p5js",
+    "chapter": "第7章：几何图元与色彩样式",
+    "title": "边框样式：stroke 与 strokeWeight",
+    "concept": "`stroke(r, g, b)` 决定描边轮廓的颜色；`strokeWeight(像素)` 决定轮廓线的粗细。",
+    "identifierGuide": "内置函数：stroke, strokeWeight, circle | 自定义名称：无",
+    "code": "stroke(0, 255, 0); // 绿色描边\nstrokeWeight(4);   // 4像素粗\ncircle(100, 100, 40);",
+    "question": "运行后绘制的圆会拥有什么样的轮廓？",
+    "options": [
+      "无轮廓",
+      "4 像素粗的绿色轮廓",
+      "1 像素细黑边",
+      "纯绿色的实心圆"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n`stroke(0, 255, 0)` 将轮廓色设置为绿色，`strokeWeight(4)` 设置线宽为 4 像素，因此圆的边缘是一圈 4 像素宽的鲜艳绿边。",
+    "xp": 20
+  },
+  {
+    "id": 65,
+    "track": "p5js",
+    "chapter": "第7章：几何图元与色彩样式",
+    "title": "禁用填充与边框：noFill 和 noStroke",
+    "concept": "如果只想画空心圈，写 `noFill();`；如果想画无边框的扁平几何块，写 `noStroke();`。扁平化 UI 常用 `noStroke();`！",
+    "identifierGuide": "内置函数：noFill, stroke, circle | 自定义名称：无",
+    "code": "noFill();\nstroke(255);\ncircle(100, 100, 50);",
+    "question": "最终屏幕上呈现出来的效果是？",
+    "options": [
+      "实心白圆",
+      "空心白色线框圆（中间透明透出底色）",
+      "什么都没有",
+      "纯黑圆"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n`noFill()` 关闭了形状内部填充，中间是完全镂空透明的；`stroke(255)` 设置了白色边框，所以得到一个白色空心描边圆。",
+    "xp": 20
+  },
+  {
+    "id": 66,
+    "track": "p5js",
+    "chapter": "第7章：几何图元与色彩样式",
+    "title": "RGBA 第四参数：透明度 Alpha",
+    "concept": "颜色的第 4 个参数是透明度 Alpha（0 到 255）：\n`fill(R, G, B, Alpha)`\n0 是完全隐形透明，255 是完全不透明，100 是半透明玻璃感！",
+    "identifierGuide": "内置函数：fill, rect | 自定义名称：无",
+    "code": "fill(255, 0, 0, 128); // 红色，透明度约 50%\nrect(50, 50, 100, 100);",
+    "question": "参数里的 128 代表什么含义？",
+    "options": [
+      "代表亮度",
+      "代表约 50% 半透明度",
+      "代表圆角弧度",
+      "代表缩放倍数"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n在 0-255 的 Alpha 空间中，128 正好是一半，产生 50% 半透明效果，能透出后面的背景或其他游戏物体。",
+    "xp": 20
+  },
+  {
+    "id": 67,
+    "track": "p5js",
+    "chapter": "第7章：几何图元与色彩样式",
+    "title": "图层层叠：画家算法（Painter's Algorithm）",
+    "concept": "p5.js 绘制就像画家在画布上刷油画：【先写的代码先画在底层，后写的代码会盖在上面】！后画者遮挡先画者。",
+    "identifierGuide": "内置函数：fill, rect, circle | 自定义名称：无",
+    "code": "fill(255, 0, 0); // 红方块\nrect(50, 50, 100, 100);\n\nfill(0, 0, 255); // 蓝圆圈\ncircle(100, 100, 60);",
+    "question": "在它们重叠的区域，我们看到的是什么颜色？",
+    "options": [
+      "红色",
+      "蓝色",
+      "紫色混合色",
+      "透明色"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n蓝色的圆圈写在后面，因此后绘制的蓝色圆形会把先绘制的红色矩形重叠区域直接遮盖住。所以重叠部分呈现蓝色！",
+    "xp": 20
+  },
+  {
+    "id": 68,
+    "track": "p5js",
+    "chapter": "第7章：几何图元与色彩样式",
+    "title": "三角形图元 triangle 的 6 个参数",
+    "concept": "`triangle(x1, y1, x2, y2, x3, y3)` 用于画三角形，必须按顺序提供三个顶点的 (x, y) 坐标，总共 6 个参数。",
+    "identifierGuide": "内置函数：triangle | 自定义名称：无",
+    "code": "triangle(30, 75, 58, 20, 86, 75);",
+    "question": "第 2 个顶点的坐标是？",
+    "options": [
+      "(30, 75)",
+      "(58, 20)",
+      "(86, 75)",
+      "(75, 58)"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n参数两两成对：\n第1个顶点：(x1, y1) = (30, 75)\n第2个顶点：(x2, y2) = (58, 20)\n第3个顶点：(x3, y3) = (86, 75)\n所以第 2 个顶点坐标是 (58, 20)。常用来画飞船机头或箭头。",
+    "xp": 20
+  },
+  {
+    "id": 69,
+    "track": "p5js",
+    "chapter": "第7章：几何图元与色彩样式",
+    "title": "矩形锚点模式：rectMode(CENTER)",
+    "concept": "默认 `rect` 锚点在左上角。如果我们写 `rectMode(CENTER);`，那么 `rect(x, y, w, h)` 的 (x, y) 就会变成矩形的【正中心】，和圆一样！",
+    "identifierGuide": "内置函数/常量：rectMode, CENTER, rect | 自定义名称：无",
+    "code": "rectMode(CENTER);\nrect(200, 200, 100, 100);",
+    "question": "执行 rectMode(CENTER) 后，点 (200, 200) 位于这个矩形的什么位置？",
+    "options": [
+      "左上角",
+      "几何正中心",
+      "右下角",
+      "底部正中"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n`rectMode(CENTER)` 将矩形的定位基准点切换到了矩形几何正中心。在做旋转动画或以角色中心对齐时非常方便。",
+    "xp": 20
+  },
+  {
+    "id": 70,
+    "track": "p5js",
+    "chapter": "第7章：几何图元与色彩样式",
+    "title": "几何组合：制作游戏小飞船",
+    "concept": "数字媒体艺术的核心是“组合”。一个机身（矩形）加上一个机头（三角形），就能拼出一个太空飞船！",
+    "identifierGuide": "内置函数：rect, triangle, fill | 自定义名称：无",
+    "code": "// 机身：宽40高60\nrect(180, 200, 40, 60);\n// 机头三角形\ntriangle(180, 200, 220, 200, 200, 160);",
+    "question": "机头尖端点 (200, 160) 指向哪个方向？",
+    "options": [
+      "向下",
+      "向上",
+      "向左",
+      "向右"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n机身顶部 Y=200。机头尖端 Y=160。在屏幕坐标系中，数值越小越靠上，所以机头尖端朝向【正上方】！",
+    "xp": 20
+  },
+  {
+    "id": 71,
+    "track": "p5js",
+    "chapter": "第8章：变量、动画与 draw 循环",
+    "title": "JavaScript 变量声明：let 与 const",
+    "concept": "在 p5.js (JavaScript) 中，不需要像 C# 那样写 `int`, `float`，而是统一用：\n- `let`：声明后续可以改变的变量（如坐标 x）；\n- `const`：声明不可变常量（如重力常数）。",
+    "identifierGuide": "关键字：let, const | 自定义名称：playerX, GRAVITY",
+    "code": "let playerX = 100;\nplayerX = 150; // 合法\n\nconst GRAVITY = 9.8;\nGRAVITY = 10; // 这里会怎样？",
+    "question": "尝试修改 const 常量 GRAVITY 的值，会导致什么？",
+    "options": [
+      "正常修改成功",
+      "运行时报错：Assignment to constant variable",
+      "变量名自动变回小写",
+      "程序直接忽略并跳过"
+    ],
+    "answer": 1,
+    "explanation": "【核心考点】\nconst 代表 constant（常量）。一旦初始化赋值，绝对不允许再次修改。试图对 const 赋值会在控制台抛出 TypeError 错误！需要变动的值必须用 `let`。",
+    "xp": 20
+  },
+  {
+    "id": 72,
+    "track": "p5js",
+    "chapter": "第8章：变量、动画与 draw 循环",
+    "title": "全局变量作用域：为什么必须写在 setup 外面？",
+    "concept": "要在 `draw()` 的每帧之间累加数值（实现移动），变量必须声明在所有函数的【最外层】（全局变量）。如果写在 draw() 里面，每帧都会被重新重置为初始值！",
+    "identifierGuide": "关键字：let, function | 自定义名称：x",
+    "code": "let x = 0; // 全局变量\nfunction draw() {\n  x = x + 2;\n  circle(x, 100, 30);\n}",
+    "question": "随着时间流逝，小圆圈在屏幕上会表现出什么动作？",
+    "options": [
+      "停在原地不动",
+      "匀速向右持续移动",
+      "匀速向下持续移动",
+      "疯狂忽大忽小闪烁"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n全局变量 x 初始为 0。draw() 每秒运行约 60 次，每次运行 `x = x + 2`，X 坐标持续递增，所以圆圈会源源不断地向右滑行！",
+    "xp": 20
+  },
+  {
+    "id": 73,
+    "track": "p5js",
+    "chapter": "第8章：变量、动画与 draw 循环",
+    "title": "动画的物理本质：位置 = 旧位置 + 速度",
+    "concept": "所有电子游戏移动的底层数学模型都是：\n`position += velocity;`\n在每一帧微小的时间片里，把速度累加到当前位置上。",
+    "identifierGuide": "关键字：let | 自定义名称：posX, speedX",
+    "code": "let posX = 10;\nlet speedX = 5;\n// 经过 3 帧累加：\nposX += speedX;\nposX += speedX;\nposX += speedX;",
+    "question": "3 帧之后，posX 的坐标变成了多少？",
+    "options": [
+      "15",
+      "20",
+      "25",
+      "30"
+    ],
+    "answer": 2,
+    "explanation": "【逐步分析】\n初始 posX = 10。\n第1帧：10 + 5 = 15；\n第2帧：15 + 5 = 20；\n第3帧：20 + 5 = 25。\n最终 posX 是 25。",
+    "xp": 20
+  },
+  {
+    "id": 74,
+    "track": "p5js",
+    "chapter": "第8章：变量、动画与 draw 循环",
+    "title": "刷新画板的秘密：为什么 draw 开头要刷 background？",
+    "concept": "如果不把画板擦干净，上一帧画的圆圈就会永久留在屏幕上，看起来就像毛笔拖出的一长串残影。在 draw() 开头写 `background(220)` 相当于每帧擦黑板！",
+    "identifierGuide": "内置函数：background, circle | 自定义名称：x",
+    "code": "function draw() {\n  // 如果把这行注释掉：// background(220);\n  x += 2;\n  circle(x, 100, 30);\n}",
+    "question": "注释掉 background(220) 后，视觉上会发生什么？",
+    "options": [
+      "屏幕完全变黑什么都看不见",
+      "圆圈移动时留下连续不散的实心轨迹（像一条粗线）",
+      "圆圈移动速度变慢",
+      "程序报错崩溃"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\np5.js 默认不会自动清理上一帧的像素。没有 background 擦底，每一帧的圆都会叠印在前一帧上面，最终形成一条长条拖痕！",
+    "xp": 20
+  },
+  {
+    "id": 75,
+    "track": "p5js",
+    "chapter": "第8章：变量、动画与 draw 循环",
+    "title": "创意编程神技：半透明背景制造光影拖尾",
+    "concept": "想要制作流星、光剑或赛博朋克的【动态拖尾残影】？秘诀是在 draw() 里刷带有透明度的背景：`background(0, 25);`！上一帧的画面不会立刻消失，而是慢慢淡去。",
+    "identifierGuide": "内置函数：background | 自定义名称：无",
+    "code": "function draw() {\n  background(0, 25); // 黑色半透明底色\n  circle(mouseX, mouseY, 20);\n}",
+    "question": "这种写法的视觉艺术效果是什么？",
+    "options": [
+      "纯白刺眼闪烁",
+      "产生优雅平滑的渐隐拖尾残影",
+      "彻底隐藏鼠标",
+      "画面定格不动"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n由于每一帧只覆盖 25/255（约 10%）的不透明黑层，旧的图形需要叠加十多帧才会逐渐变黑消失，从而产生了极其酷炫的动态残影拖尾特效！",
+    "xp": 20
+  },
+  {
+    "id": 76,
+    "track": "p5js",
+    "chapter": "第8章：变量、动画与 draw 循环",
+    "title": "内置时钟变量：frameCount",
+    "concept": "`frameCount` 是系统内置计数器，从程序运行开始，每画一帧它就自动加 1。无需自己定义计数器，就能用来控制节奏与动画周期！",
+    "identifierGuide": "系统内置变量：frameCount | 自定义名称：无",
+    "code": "function draw() {\n  if (frameCount % 60 === 0) {\n    console.log(\"过去了大约 1 秒！\");\n  }\n}",
+    "question": "为什么 frameCount % 60 === 0 可以大致代表 1 秒钟？",
+    "options": [
+      "因为 p5.js 强制 1 秒只能画 1 帧",
+      "因为默认帧率是 60fps（每秒 60 帧），60 的倍数刚好是一秒",
+      "因为 60 代表分钟",
+      "巧合而已"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\np5.js 默认刷新率约为 60 FPS（Frames Per Second）。经过 60 帧，时间刚好大约流逝了 1 秒钟。结合 `% 60` 取模，每到 60 帧整除时触发一次。",
+    "xp": 20
+  },
+  {
+    "id": 77,
+    "track": "p5js",
+    "chapter": "第8章：变量、动画与 draw 循环",
+    "title": "速度的正负与运动方向",
+    "concept": "速度是一个有方向的量：\n- `speed = 3`（正数）：沿坐标轴正方向移动（X 向右，Y 向下）；\n- `speed = -3`（负数）：反向移动（X 向左，Y 向上）！",
+    "identifierGuide": "关键字：let | 自定义名称：y, vy",
+    "code": "let y = 300;\nlet vy = -4;\nfunction draw() {\n  y += vy;\n  circle(100, y, 20);\n}",
+    "question": "小圆圈在屏幕上的运动方向是？",
+    "options": [
+      "向右飞",
+      "向上升起",
+      "向下降落",
+      "向左飞"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\nvy 为负数 -4。每帧 `y += (-4)` 等价于 `y = y - 4`，Y 坐标持续变小。在屏幕坐标系中，Y 变小意味着向屏幕【正上方】运动！",
+    "xp": 20
+  },
+  {
+    "id": 78,
+    "track": "p5js",
+    "chapter": "第8章：变量、动画与 draw 循环",
+    "title": "模拟重力加速度：自由落体",
+    "concept": "物理学中，重力使下落速度越来越快。代码只需两行：\n1. `vy += gravity;`（速度每帧增加）\n2. `y += vy;`（位置由速度推进）",
+    "identifierGuide": "关键字：let | 自定义名称：y, vy, gravity",
+    "code": "let y = 0;\nlet vy = 0;\nlet gravity = 0.5;\n\n// 模拟第1帧：\nvy += gravity; // vy 变 0.5\ny += vy;       // y 变 0.5\n\n// 模拟第2帧：\nvy += gravity; // vy 变 1.0\ny += vy;       // y 变 1.5",
+    "question": "小球在下落过程中的运动状态是怎样的？",
+    "options": [
+      "匀速直线运动",
+      "速度越来越快的加速下落",
+      "减速运动",
+      "悬浮在空中"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n因为每帧重力都在给垂直速度 `vy` 叠加 0.5，所以速度在不断增大，导致每一帧移动的像素位移越来越大，呈现真实物理世界的自由落体加速效果！",
+    "xp": 20
+  },
+  {
+    "id": 79,
+    "track": "p5js",
+    "chapter": "第8章：变量、动画与 draw 循环",
+    "title": "三角函数 sin()：优雅的周期性浮动",
+    "concept": "数学函数 `sin(角度)` 的输出值永远在 `-1` 到 `1` 之间丝滑摆动。乘以振幅（如 50），就能做出水母漂浮、金币上下悬浮晃动的灵动特效！",
+    "identifierGuide": "内置函数：sin, circle | 自定义名称：offsetY",
+    "code": "let offsetY = sin(frameCount * 0.05) * 50;\ncircle(200, 200 + offsetY, 30);",
+    "question": "这个圆圈的垂直位置会在什么范围内周期震荡？",
+    "options": [
+      "0 到 50 之间",
+      "150 到 250 之间",
+      "200 到 250 之间",
+      "0 到 200 之间"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\nsin() 取值范围是 [-1, 1]。\n乘以 50 之后，offsetY 取值范围是 [-50, 50]。\n基准中心是 200，所以 Y 坐标在 200 - 50 = 150 到 200 + 50 = 250 之间优雅上下起伏！",
+    "xp": 20
+  },
+  {
+    "id": 80,
+    "track": "p5js",
+    "chapter": "第8章：变量、动画与 draw 循环",
+    "title": "穿屏循环复位：跑马灯机制",
+    "concept": "当物体飞出屏幕右边缘（`x > width`）时，立即把它重置回最左侧（`x = 0`），物体就会像贪吃蛇或弹幕一样源源不断地从左侧重新进场。",
+    "identifierGuide": "关键字：if | 系统变量：width | 自定义名称：x",
+    "code": "x += 5;\nif (x > width) {\n  x = 0;\n}",
+    "question": "如果当前画布 width 为 400，当 x 递增到 405 时会发生什么？",
+    "options": [
+      "小球卡在右边界不动",
+      "报错退出",
+      "x 被重置为 0，小球从左侧重新飞出",
+      "x 变成 -400"
+    ],
+    "answer": 2,
+    "explanation": "【逐步分析】\n405 > 400 条件成立，触发执行大括号内部代码 `x = 0;`。小球横坐标瞬间回到最左端 0，形成跑马灯循环循环滚动效果。",
+    "xp": 20
+  },
+  {
+    "id": 81,
+    "track": "p5js",
+    "chapter": "第9章：触控交互与碰撞检测",
+    "title": "触控与鼠标坐标：mouseX 与 mouseY",
+    "concept": "p5.js 内置了 `mouseX` 和 `mouseY`。在手机浏览器上，它们自动映射为你【手指触摸屏幕的实时坐标】！",
+    "identifierGuide": "系统内置变量：mouseX, mouseY | 内置函数：circle",
+    "code": "function draw() {\n  background(220);\n  circle(mouseX, mouseY, 40);\n}",
+    "question": "这段代码在手机上运行会呈现什么交互效果？",
+    "options": [
+      "圆圈一直在正中心不动",
+      "圆圈跟随手指滑动轨迹实时移动",
+      "必须双击才会画圆",
+      "圆圈每秒随机变换位置"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n每帧 draw() 读取当前手指位置 (mouseX, mouseY)，并以其为圆心绘制圆。由于每秒刷新 60 次，视觉上圆圈就像被手指吸住一样如影随形！",
+    "xp": 20
+  },
+  {
+    "id": 82,
+    "track": "p5js",
+    "chapter": "第9章：触控交互与碰撞检测",
+    "title": "上一帧坐标：pmouseX 与涂鸦画笔",
+    "concept": "`pmouseX` (Previous Mouse X) 记录的是【前一帧】的手指位置。把前一帧点 (pmouseX, pmouseY) 和当前帧点 (mouseX, mouseY) 用 `line` 连接起来，就能画出极致丝滑的涂鸦画笔！",
+    "identifierGuide": "系统内置变量：pmouseX, pmouseY, mouseX, mouseY | 内置函数：line",
+    "code": "function draw() {\n  // 不写 background 以保留画迹\n  line(pmouseX, pmouseY, mouseX, mouseY);\n}",
+    "question": "为什么用 line 连接两帧坐标，比直接画单个 point 更好？",
+    "options": [
+      "节省内存",
+      "手指划得很快时，point 会出现断断续续的断点，而 line 能连成平滑连续的线条",
+      "line 只能画黑色",
+      "没有区别"
+    ],
+    "answer": 1,
+    "explanation": "【核心考点】\n如果手指快速扫过屏幕，60fps 下两次采样的距离可能相隔几十像素。只画点就会变成离散的虚线圆点，而用 line 连接前后两帧则能形成无缝闭合的连续笔触！",
+    "xp": 20
+  },
+  {
+    "id": 83,
+    "track": "p5js",
+    "chapter": "第9章：触控交互与碰撞检测",
+    "title": "按住状态检测：mouseIsPressed 布尔变量",
+    "concept": "`mouseIsPressed` 是一个 bool 开关变量：当手指正贴在手机屏幕上时，它是 `true`；手指抬起离开屏幕时，自动变成 `false`。",
+    "identifierGuide": "系统内置变量：mouseIsPressed | 关键字：if, else",
+    "code": "if (mouseIsPressed) {\n  fill(255, 0, 0); // 红色\n} else {\n  fill(0, 255, 0); // 绿色\n}\ncircle(100, 100, 50);",
+    "question": "手指长按屏幕不放时，圆圈是什么颜色？松手后又是什么颜色？",
+    "options": [
+      "按住是绿，松手是红",
+      "按住是红，松手是绿",
+      "永远是红",
+      "永远是绿"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n按住屏幕时 `mouseIsPressed` 为 true，执行 `fill(255, 0, 0)` 变红；手指离开后变为 false，执行 else 变绿。这是最经典的长按交互反馈！",
+    "xp": 20
+  },
+  {
+    "id": 84,
+    "track": "p5js",
+    "chapter": "第9章：触控交互与碰撞检测",
+    "title": "事件驱动函数：mousePressed()",
+    "concept": "与 `draw()` 中的实时检测不同，`function mousePressed()` 是事件驱动函数：【只有手指点下屏幕的瞬间触发一次】，用来做“点击发射子弹”或“跳跃”最合适！",
+    "identifierGuide": "内置事件函数：mousePressed | 自定义名称：ammo",
+    "code": "let ammo = 10;\nfunction mousePressed() {\n  ammo--;\n}",
+    "question": "如果手指按住屏幕持续 3 秒钟不放，ammo 会减少多少？",
+    "options": [
+      "减少 180 发（每帧扣一次）",
+      "只减少 1 发（只在点下的那一瞬间触发一次）",
+      "减少 3 发",
+      "不会减少"
+    ],
+    "answer": 1,
+    "explanation": "【核心考点】\n`mousePressed()` 是单次事件监听器（Event Listener），无论按住多久，只在按下的瞬间触发单次调用，因此 ammo 只扣 1 发！如果需要持续连发，才用 draw + mouseIsPressed。",
+    "xp": 20
+  },
+  {
+    "id": 85,
+    "track": "p5js",
+    "chapter": "第9章：触控交互与碰撞检测",
+    "title": "边界碰撞反弹：速度取反（speed = -speed）",
+    "concept": "乒乓球撞墙反弹的物理秘密就是【速度乘以 -1】！当小球撞到右边界（x > width）或左边界（x < 0）时，执行 `speed = -speed;`，正速度变负向左跑，负速度变正向右跑！",
+    "identifierGuide": "关键字：if | 系统变量：width | 自定义名称：x, speed",
+    "code": "x += speed;\nif (x > width || x < 0) {\n  speed = -speed;\n}",
+    "question": "如果当前 speed 是 5，撞到右边界触发条件后，speed 变成了多少？",
+    "options": [
+      "0",
+      "-5",
+      "10",
+      "不变"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n`speed = -speed` 相当于 `speed = -5`。由于速度由 +5 变成了 -5，下一帧 `x += (-5)`，小球就会乖乖掉头向左反弹折返！",
+    "xp": 20
+  },
+  {
+    "id": 86,
+    "track": "p5js",
+    "chapter": "第9章：触控交互与碰撞检测",
+    "title": "两点欧氏距离函数：dist(x1, y1, x2, y2)",
+    "concept": "`dist()` 根据勾股定理自动算出两个坐标点之间的直线像素距离。无需手写繁琐的平方根公式！",
+    "identifierGuide": "内置函数：dist | 自定义名称：d",
+    "code": "let d = dist(0, 0, 30, 40);\nconsole.log(d);",
+    "question": "计算出的距离 d 是多少？（提示：经典勾三股四弦五）",
+    "options": [
+      "70",
+      "50",
+      "1200",
+      "25"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\nΔx = 30, Δy = 40。根据勾股定理：√(30² + 40²) = √(900 + 1600) = √2500 = 50。因此点 (0,0) 到 (30,40) 的距离是 50。",
+    "xp": 20
+  },
+  {
+    "id": 87,
+    "track": "p5js",
+    "chapter": "第9章：触控交互与碰撞检测",
+    "title": "圆形碰撞检测算法核心",
+    "concept": "两个圆圈是否发生碰撞？几何判据非常直观：【两圆心之间的直线距离 < 两圆半径之和】！如果距离比半径和还短，说明它们一定在空间上互相重叠了！",
+    "identifierGuide": "内置函数：dist | 关键字：if | 自定义名称：d",
+    "code": "// 圆A 在 (100, 100)，半径 30\n// 圆B 在 (mouseX, mouseY)，半径 20\nlet d = dist(100, 100, mouseX, mouseY);\nif (d < 30 + 20) {\n  console.log(\"发生碰击！\");\n}",
+    "question": "当手指位置与圆 A 中心的距离是 45 像素时，会触发碰击吗？",
+    "options": [
+      "会触发，因为 45 < 50",
+      "不会触发，因为 45 > 30",
+      "两者擦肩而过但没碰上",
+      "报错"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\n两圆半径之和是 30 + 20 = 50 像素。当前实际心距为 45 像素。因为 45 < 50，满足重叠条件，控制台输出“发生碰击！”。这就是弹幕游戏最基础的受击检测算法！",
+    "xp": 20
+  },
+  {
+    "id": 88,
+    "track": "p5js",
+    "chapter": "第9章：触控交互与碰撞检测",
+    "title": "矩形点选判断：AABB 轴对称包围盒检测",
+    "concept": "如何判断手指是否点击了屏幕上的方形按钮？必须同时满足 4 个边界条件：\n`mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h`",
+    "identifierGuide": "系统变量：mouseX, mouseY | 关键字：if | 自定义名称：btnX, btnY, btnW, btnH",
+    "code": "let btnX = 50, btnY = 50, btnW = 100, btnH = 40;\nif (mouseX > btnX && mouseX < btnX + btnW &&\n    mouseY > btnY && mouseY < btnY + btnH) {\n  // 手指在按钮内！\n}",
+    "question": "如果手指点击坐标是 (80, 70)，是否点中了按钮？",
+    "options": [
+      "点中了按钮",
+      "没点中，太偏右",
+      "没点中，太偏下",
+      "无法判断"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\n按钮的 X 范围是 [50, 150]，Y 范围是 [50, 90]。\n点击点 X=80 在 [50, 150] 内，Y=70 在 [50, 90] 内。四个条件全部满足，所以精准点中了按钮！",
+    "xp": 20
+  },
+  {
+    "id": 89,
+    "track": "p5js",
+    "chapter": "第9章：触控交互与碰撞检测",
+    "title": "布尔开关取反：日夜模式一键切换",
+    "concept": "使用 `state = !state;` 可以把一个布尔变量在 true 和 false 之间来回翻转。常用于制作开关按钮（开灯/关灯，静音/播放）。",
+    "identifierGuide": "关键字：let, function | 自定义名称：isNight",
+    "code": "let isNight = false;\nfunction mousePressed() {\n  isNight = !isNight;\n}",
+    "question": "连续点击屏幕 3 次后，isNight 的最终状态是什么？",
+    "options": [
+      "true（夜间）",
+      "false（白昼）",
+      "undefined",
+      "报错"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\n初始为 false。\n第1次点击：!false 变为 true；\n第2次点击：!true 变为 false；\n第3次点击：!false 变为 true。\n奇数次取反结果为 true。",
+    "xp": 20
+  },
+  {
+    "id": 90,
+    "track": "p5js",
+    "chapter": "第9章：触控交互与碰撞检测",
+    "title": "交互实战：手指吸引力小球",
+    "concept": "让小球缓缓游向手指：\n`x += (mouseX - x) * 0.1;`\n这就是游戏开发中极度常用的【平滑插值缓动公式（Lerp / Easing）】！",
+    "identifierGuide": "系统变量：mouseX | 自定义名称：x",
+    "code": "let x = 0;\nfunction draw() {\n  // 设 mouseX 为 100\n  x += (mouseX - x) * 0.1;\n}",
+    "question": "小球向手指靠近的过程在视觉上有什么特征？",
+    "options": [
+      "瞬间瞬移到手指处",
+      "匀速机械地移动",
+      "离手指越远跑得越快，越靠近手指越减速慢下来，平滑吸附",
+      "远离手指飞出屏幕"
+    ],
+    "answer": 2,
+    "explanation": "【核心考点】\n当距离 `(mouseX - x)` 很大时，增量大，速度快；当距离接近 0 时，增量很小，速度变慢。产生极其自然的柔和缓动刹车效果！",
+    "xp": 20
+  },
+  {
+    "id": 91,
+    "track": "p5js",
+    "chapter": "第10章：生成艺术与游戏综合",
+    "title": "随机生成器：random(min, max)",
+    "concept": "`random(a, b)` 返回一个在 a 和 b 之间的随机浮点数。在生成艺术中，用来赋予每个粒子不同的位置、大小和随机颜色！",
+    "identifierGuide": "内置函数：random | 自定义名称：r",
+    "code": "let r = random(10, 20);",
+    "question": "变量 r 的可能取值范围是？",
+    "options": [
+      "只可能是整数 10 或 20",
+      "在 10 到 20 之间的任意小数（包含10，小于20）",
+      "0 到 10 之间",
+      "任何数字都有可能"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n`random(min, max)` 生成半开区间 [min, max) 上的浮点数，比如 12.385、19.742 等，是生成式艺术（Generative Art）的灵魂函数。",
+    "xp": 20
+  },
+  {
+    "id": 92,
+    "track": "p5js",
+    "chapter": "第10章：生成艺术与游戏综合",
+    "title": "随机数位置陷阱：setup 还是 draw？",
+    "concept": "如果把 `random()` 写在 `setup()` 里，图形只会随机生成一次并定格；如果写在 `draw()` 里，由于每秒循环 60 次，图形会像疯狂闪烁的电视雪花一样剧烈抖动！",
+    "identifierGuide": "内置函数：random, circle, function | 自定义名称：无",
+    "code": "// 方案A：在 setup 中生成随机位置\n// 方案B：在 draw 中生成随机位置 circle(random(width), random(height), 20);",
+    "question": "如果想要绘制一幅静态的、星星位置固定的夜空图，应该选哪种方案？",
+    "options": [
+      "方案 B（写在 draw 里）",
+      "方案 A（写在 setup 里，或者只画一次）",
+      "两种都一样",
+      "写在外部不能画出来"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\ndraw() 每一秒循环 60 次。如果每次都重新 random，星星每秒跳动 60 次，视觉上会变成癫痫般刺眼的闪烁雪花。静态作品或只初始化一次的属性必须放在 setup() 中！",
+    "xp": 20
+  },
+  {
+    "id": 93,
+    "track": "p5js",
+    "chapter": "第10章：生成艺术与游戏综合",
+    "title": "用 for 循环排布一整排柱子",
+    "concept": "无需手写 10 个 rect！用 for 循环，每次把 X 坐标加上间距：`rect(i * 40, 100, 30, 80)`，一行代码瞬间排列出一排整齐的建筑物或柱廊！",
+    "identifierGuide": "关键字：for, let | 内置函数：rect | 自定义名称：i",
+    "code": "for (let i = 0; i < 5; i++) {\n  rect(i * 50, 100, 40, 80);\n}",
+    "question": "这段代码总共在画布上绘制了几个矩形？",
+    "options": [
+      "4 个",
+      "5 个",
+      "6 个",
+      "50 个"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\ni 从 0 循环到 4（0, 1, 2, 3, 4），一共循环 5 次。每次循环绘制一个 X 位置不同的矩形，因此屏幕上会出现 5 个整齐排列的矩形柱子。",
+    "xp": 20
+  },
+  {
+    "id": 94,
+    "track": "p5js",
+    "chapter": "第10章：生成艺术与游戏综合",
+    "title": "二维嵌套循环：波点点阵（Dot Grid）",
+    "concept": "外层循环控制行（Y），内层循环控制列（X）。这是草间弥生式波点艺术和像素网格的核心算法！",
+    "identifierGuide": "关键字：for, let | 内置函数：circle | 自定义名称：x, y",
+    "code": "for (let x = 20; x < 100; x += 30) {\n  for (let y = 20; y < 100; y += 30) {\n    circle(x, y, 10);\n  }\n}",
+    "question": "X 有 3 个取值（20, 50, 80），Y 也有 3 个取值（20, 50, 80），总共会画出几个圆？",
+    "options": [
+      "6 个",
+      "9 个",
+      "3 个",
+      "12 个"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n外层 3 次 * 内层 3 次 = 3 * 3 = 9 次。屏幕上会呈现一个 3 行 3 列的九宫格整齐波点阵列。",
+    "xp": 20
+  },
+  {
+    "id": 95,
+    "track": "p5js",
+    "chapter": "第10章：生成艺术与游戏综合",
+    "title": "坐标变换：translate(x, y) 移动原点",
+    "concept": "`translate(200, 200)` 不会移动物体，而是【把整个画布的原点 (0, 0) 搬到了 (200, 200)】！之后你画 `circle(0, 0, 30)`，它就直接出现在屏幕的 (200, 200) 处！",
+    "identifierGuide": "内置函数：translate, circle | 自定义名称：无",
+    "code": "translate(150, 150);\ncircle(0, 0, 40);",
+    "question": "这个圆在整个屏幕绝对视野中的中心位置是？",
+    "options": [
+      "(0, 0)",
+      "(150, 150)",
+      "(40, 40)",
+      "(300, 300)"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n因为原点 (0,0) 已经被平移指令搬迁到了 (150, 150)，所以在相对坐标 (0,0) 画的圆，在屏幕绝对位置上看正是 (150, 150)！",
+    "xp": 20
+  },
+  {
+    "id": 96,
+    "track": "p5js",
+    "chapter": "第10章：生成艺术与游戏综合",
+    "title": "旋转图元：rotate() 与 angleMode",
+    "concept": "p5.js 默认旋转是以原点 (0,0) 为轴心旋转。并且默认使用【弧度制】（360度 = 2π）。调用 `angleMode(DEGREES);` 后就可以使用我们习惯的【角度制（0~360度）】了！",
+    "identifierGuide": "内置函数/常量：angleMode, DEGREES, rotate | 自定义名称：无",
+    "code": "angleMode(DEGREES);\ntranslate(200, 200);\nrotate(45);\nrect(-20, -20, 40, 40);",
+    "question": "这段代码旋转了一个矩形，它是围绕哪个点旋转的？",
+    "options": [
+      "左上角 (0, 0)",
+      "屏幕中心 (200, 200)",
+      "矩形右下角",
+      "随机旋转"
+    ],
+    "answer": 1,
+    "explanation": "【逐步分析】\n由于先执行了 `translate(200, 200)` 将画板坐标原点移动到了 (200, 200)，随后的 `rotate(45)` 正是围绕当前原点（即屏幕的 (200, 200)）进行自转！这是 2D 游戏物体自转的通用标准技巧。",
+    "xp": 20
+  },
+  {
+    "id": 97,
+    "track": "p5js",
+    "chapter": "第10章：生成艺术与游戏综合",
+    "title": "状态隔离保护伞：push() 与 pop()",
+    "concept": "`translate` 和 `rotate` 会影响后面画的所有东西。如果不希望影响别人，必须用 `push();`（保存当前画板状态）和 `pop();`（恢复原本画板状态）将变换代码像夹心饼干一样包裹起来！",
+    "identifierGuide": "内置函数：push, pop, translate, rotate | 自定义名称：无",
+    "code": "push(); // 保存环境\ntranslate(100, 100);\nrotate(30);\nrect(0, 0, 20, 20);\npop();  // 恢复环境！\n\n// 这里的圆会被旋转和平移影响吗？\ncircle(50, 50, 20);",
+    "question": "最后一行代码画的 circle 会受到前面的 translate 和 rotate 影响吗？",
+    "options": [
+      "会受到影响",
+      "不会受到影响，因为 pop() 已经还原了坐标系",
+      "报错",
+      "画布被清空"
+    ],
+    "answer": 1,
+    "explanation": "【核心考点】\n`push()` 会将当前的坐标矩阵和样式压入栈中，`pop()` 会将其完全弹出恢复。在 pop() 之后绘制的图形完全不受包裹内的平移与旋转影响。看 AI 写的复杂图形代码时，你会看到大量的 push() / pop() 对！",
+    "xp": 20
+  },
+  {
+    "id": 98,
+    "track": "p5js",
+    "chapter": "第10章：生成艺术与游戏综合",
+    "title": "粒子数组初步：管理多个星星位置",
+    "concept": "游戏中成百上千颗雨滴或子弹，是用数组存储的：`let starsX = [50, 120, 280];`。配合 for 循环，一次性遍历渲染所有雨滴！",
+    "identifierGuide": "关键字：let, for | 内置函数：circle | 自定义名称：starsX, i",
+    "code": "let starsX = [50, 120, 280];\nfor (let i = 0; i < starsX.length; i++) {\n  circle(starsX[i], 100, 10);\n}",
+    "question": "屏幕上总共会绘制出几颗小星星？",
+    "options": [
+      "1 颗",
+      "2 颗",
+      "3 颗",
+      "4 颗"
+    ],
+    "answer": 2,
+    "explanation": "【逐步分析】\n`starsX.length` 是 3。循环依次取出 50, 120, 280 作为 X 坐标，在 Y=100 处各画一个圆，总共绘制出 3 颗小星星。",
+    "xp": 20
+  },
+  {
+    "id": 99,
+    "track": "p5js",
+    "chapter": "第10章：生成艺术与游戏综合",
+    "title": "UI 文本渲染：text() 与 textSize()",
+    "concept": "游戏总需要显示分数与血量。`text(\"文字内容\", x, y)` 用于在画布上绘制文字；`textSize(字号)` 控制字体大小。",
+    "identifierGuide": "内置函数：text, textSize, fill | 自定义名称：score",
+    "code": "let score = 99;\ntextSize(24);\nfill(255);\ntext(\"SCORE: \" + score, 20, 40);",
+    "question": "这行代码在画布的 (20, 40) 位置绘制了什么？",
+    "options": [
+      "SCORE: 99 的白色文字",
+      "一个红色正方形",
+      "空字符串",
+      "控制台输出文字"
+    ],
+    "answer": 0,
+    "explanation": "【逐步分析】\n`text()` 是直接在 HTML5 Canvas 画面上画出指定文字，`textSize(24)` 设置字号为 24 像素，`fill(255)` 设置为白色，因此在 (20, 40) 呈现出白色的 \"SCORE: 99\"！",
+    "xp": 20
+  },
+  {
+    "id": 100,
+    "track": "p5js",
+    "chapter": "第10章：生成艺术与游戏综合",
+    "title": "终极挑战：完全读懂 AI 生成的经典弹球游戏核心逻辑",
+    "concept": "恭喜来到第 100 关！现在你面对的是一段完整的真实 2D 弹球反弹核心代码。请静心通读并预测小球的命运！",
+    "identifierGuide": "系统变量：width, height | 关键字：let, if, function | 自定义名称：ballX, ballY, vx, vy",
+    "code": "let ballX = 200, ballY = 200;\nlet vx = 4, vy = 3;\n\nfunction updateBall() {\n  ballX += vx;\n  ballY += vy;\n  // 左右撞墙反弹\n  if (ballX > width || ballX < 0) vx = -vx;\n  // 上下撞墙反弹\n  if (ballY > height || ballY < 0) vy = -vy;\n}",
+    "question": "如果小球飞出右边界（ballX > width），接下来它会发生什么？",
+    "options": [
+      "小球穿透屏幕永远消失",
+      "vx 取反，小球向左反弹折返，继续在画布内运动",
+      "小球垂直向上飞",
+      "游戏报错死机"
+    ],
+    "answer": 1,
+    "explanation": "【全套代码通盘复盘】\n1. `ballX += vx; ballY += vy;` 实现了每帧位置推进。\n2. 遇到右边界时，触发 `ballX > width`，执行 `vx = -vx`。\n3. 原本正向向右的速度（+4）翻转为向左的速度（-4）。\n4. 垂直方向速度 vy 保持不变。\n小球实现真实物理碰撞反弹！至此，你已经完全具备看懂并修改 AI 生成的 2D 交互与游戏代码的能力！",
+    "xp": 30
+  }
+];
+
+    // State Management & Persistence
+    const STORAGE_KEY = 'CODE100_STATE_V3';
+    let appState = {
+      currentId: 1,
+      completedIds: [],
+      errorIds: [],
+      xp: 0,
+      streak: 0,
+      soundEnabled: true,
+      activeTrack: 'all',
+      isMistakeOnlyMode: false
+    };
+
+    function loadState() {
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const saved = window.localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            appState = Object.assign(appState, parsed);
+          }
+        }
+      } catch (e) {}
+    }
+
+    function saveState() {
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        }
+      } catch (e) {}
+    }
+
+    // Audio
+    let audioCtx = null;
+    function playTone(freq, type, duration, delay, vol) {
+      if (!appState.soundEnabled) return;
+      try {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioClass) return;
+        if (!audioCtx) audioCtx = new AudioClass();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        setTimeout(() => {
+          try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol || 0.12, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+          } catch (err) {}
+        }, (delay || 0) * 1000);
+      } catch (e) {}
+    }
+
+    function playSfx(name) {
+      if (!appState.soundEnabled) return;
+      if (name === 'click') {
+        playTone(600, 'sine', 0.05, 0, 0.08);
+      } else if (name === 'correct') {
+        playTone(523.25, 'triangle', 0.12, 0, 0.15);
+        playTone(659.25, 'triangle', 0.15, 0.08, 0.15);
+        playTone(783.99, 'triangle', 0.22, 0.16, 0.18);
+      } else if (name === 'wrong') {
+        playTone(260, 'sawtooth', 0.18, 0, 0.15);
+        playTone(196, 'sawtooth', 0.25, 0.12, 0.15);
+      }
+    }
+
+    // Toast
+    let toastTimer = null;
+    function showToast(text, icon) {
+      const el = document.getElementById('toastMsg');
+      if (!el) return;
+      document.getElementById('toastIcon').textContent = icon || '✨';
+      document.getElementById('toastText').textContent = text;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        el.classList.remove('show');
+      }, 2000);
+    }
+
+    function getLevelRank(xp) {
+      if (xp < 100) return 'Lv.1 萌新代码员';
+      if (xp < 300) return 'Lv.2 语法学徒';
+      if (xp < 600) return 'Lv.3 逻辑游侠';
+      if (xp < 1000) return 'Lv.4 像素画师';
+      if (xp < 1500) return 'Lv.5 交互架构师';
+      if (xp < 2000) return 'Lv.6 独立游戏极客';
+      return 'Lv.7 算法高能大师';
+    }
+
+    function updateHUD() {
+      document.getElementById('streakCount').textContent = appState.streak;
+      document.getElementById('userXp').textContent = appState.xp;
+      document.getElementById('levelRank').textContent = getLevelRank(appState.xp);
+      
+      const compCount = appState.completedIds.length;
+      document.getElementById('progressSummary').textContent = `${compCount}/100`;
+      
+      const pct = Math.min(100, (compCount / 100) * 100);
+      document.getElementById('xpFill').style.width = `${pct}%`;
+
+      document.getElementById('soundToggle').textContent = appState.soundEnabled ? '🔊' : '🔇';
+
+      const errCount = appState.errorIds.length;
+      const navBadge = document.getElementById('navMistakeCount');
+      const mapBadge = document.getElementById('errorCountBadge');
+      if (mapBadge) mapBadge.textContent = errCount;
+      if (navBadge) {
+        if (errCount > 0) {
+          navBadge.style.display = 'block';
+          navBadge.textContent = errCount;
+        } else {
+          navBadge.style.display = 'none';
+        }
+      }
+    }
+
+    let isAnswered = false;
+    function renderQuestion(id) {
+      const q = QUESTIONS_DATA.find(item => item.id === id);
+      if (!q) return;
+
+      appState.currentId = id;
+      saveState();
+      updateHUD();
+      isAnswered = false;
+
+      const trackBadge = document.getElementById('levelTrackBadge');
+      const conceptCard = document.getElementById('conceptCard');
+      const isP5 = q.track === 'p5js';
+
+      if (isP5) {
+        trackBadge.textContent = `p5.js 关卡 ${q.id}`;
+        trackBadge.className = 'level-badge p5-badge';
+        conceptCard.className = 'card-concept p5-concept';
+        document.getElementById('codeLangLabel').textContent = 'p5.js Source';
+      } else {
+        trackBadge.textContent = `C# 关卡 ${q.id}`;
+        trackBadge.className = 'level-badge';
+        conceptCard.className = 'card-concept';
+        document.getElementById('codeLangLabel').textContent = 'C# Source';
+      }
+
+      document.getElementById('chapterTitle').textContent = q.chapter;
+      document.getElementById('questionTitle').textContent = q.title;
+      document.getElementById('conceptBody').textContent = q.concept;
+
+      const parts = q.identifierGuide.split('|');
+      let kwPart = parts[0] || '';
+      let customPart = parts[1] || '';
+
+      if (kwPart.includes('：')) kwPart = kwPart.substring(kwPart.indexOf('：') + 1);
+      else if (kwPart.includes(':')) kwPart = kwPart.substring(kwPart.indexOf(':') + 1);
+
+      if (customPart.includes('：')) customPart = customPart.substring(customPart.indexOf('：') + 1);
+      else if (customPart.includes(':')) customPart = customPart.substring(customPart.indexOf(':') + 1);
+
+      document.getElementById('kwText').textContent = kwPart.trim() || '无';
+      document.getElementById('customNameText').textContent = customPart.trim() || '无';
+
+      document.getElementById('codeContent').textContent = q.code;
+      document.getElementById('questionPrompt').textContent = q.question;
+
+      // Re-populate options
+      const optionsContainer = document.getElementById('optionsContainer');
+      optionsContainer.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+      const frag = document.createDocumentFragment();
+
+      q.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.onclick = function() { window.handleOptionClick(idx, btn); };
+        btn.innerHTML = `
+          <div class="option-letter">${letters[idx]}</div>
+          <div class="option-text">${escapeHtml(optText)}</div>
+        `;
+        frag.appendChild(btn);
+      });
+      optionsContainer.appendChild(frag);
+
+      const fbBox = document.getElementById('feedbackBox');
+      fbBox.className = 'feedback-box';
+      fbBox.style.display = 'none';
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    window.handleOptionClick = function(selectedIndex, chosenBtn) {
+      if (isAnswered) return;
+      isAnswered = true;
+
+      const q = QUESTIONS_DATA.find(item => item.id === appState.currentId);
+      const isCorrect = (selectedIndex === q.answer);
+      const allBtns = document.querySelectorAll('.option-btn');
+
+      allBtns.forEach((btn, idx) => {
+        btn.style.pointerEvents = 'none';
+        if (idx === q.answer) {
+          btn.classList.add('correct');
+        } else if (idx === selectedIndex && !isCorrect) {
+          btn.classList.add('wrong');
+        }
+      });
+
+      const fbBox = document.getElementById('feedbackBox');
+      const fbTitle = document.getElementById('feedbackTitle');
+      const fbIcon = document.getElementById('feedbackIcon');
+      const fbStatus = document.getElementById('feedbackStatus');
+      const fbXp = document.getElementById('rewardXp');
+      const fbExp = document.getElementById('explanationContent');
+
+      fbExp.textContent = q.explanation;
+
+      if (isCorrect) {
+        fbBox.className = 'feedback-box is-correct show';
+        fbStatus.className = 'feedback-status correct';
+        fbTitle.textContent = '回答正确！';
+        fbIcon.textContent = '🎉';
+        fbXp.textContent = `+${q.xp} XP`;
+        fbXp.style.display = 'inline-flex';
+
+        playSfx('correct');
+        appState.streak += 1;
+        appState.xp += q.xp;
+
+        if (!appState.completedIds.includes(q.id)) {
+          appState.completedIds.push(q.id);
+        }
+        appState.errorIds = appState.errorIds.filter(id => id !== q.id);
+
+        if (appState.streak % 5 === 0) {
+          showToast(`连续答对 ${appState.streak} 题！保持专注！`, '🔥');
+        } else {
+          showToast(`经验值 +${q.xp}！`, '⭐');
+        }
+      } else {
+        fbBox.className = 'feedback-box is-wrong show';
+        fbStatus.className = 'feedback-status wrong';
+        fbTitle.textContent = '回答错误，已加入错题本';
+        fbIcon.textContent = '💡';
+        fbXp.style.display = 'none';
+
+        playSfx('wrong');
+        appState.streak = 0;
+        if (!appState.errorIds.includes(q.id)) {
+          appState.errorIds.push(q.id);
+        }
+        showToast('已录入错题本，稍后可集中重练', '📝');
+      }
+
+      fbBox.style.display = 'block';
+      saveState();
+      updateHUD();
+
+      setTimeout(() => {
+        fbBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    };
+
+    window.goToNextLevel = function() {
+      playSfx('click');
+      let nextId = appState.currentId;
+
+      if (appState.isMistakeOnlyMode) {
+        const remainingErrors = appState.errorIds;
+        if (remainingErrors.length === 0) {
+          showToast('🎉 太棒了！所有错题已全部攻克！', '🏆');
+          appState.isMistakeOnlyMode = false;
+          renderQuestion(appState.currentId);
+          return;
+        }
+        const currIndex = remainingErrors.indexOf(appState.currentId);
+        if (currIndex !== -1 && currIndex < remainingErrors.length - 1) {
+          nextId = remainingErrors[currIndex + 1];
+        } else {
+          nextId = remainingErrors[0];
+        }
+      } else if (appState.activeTrack === 'csharp') {
+        nextId = appState.currentId + 1;
+        if (nextId > 50) nextId = 1;
+      } else if (appState.activeTrack === 'p5js') {
+        nextId = appState.currentId + 1;
+        if (nextId > 100) nextId = 51;
+      } else {
+        nextId = appState.currentId + 1;
+        if (nextId > 100) nextId = 1;
+      }
+
+      renderQuestion(nextId);
+    };
+
+    window.retryCurrentLevel = function() {
+      playSfx('click');
+      renderQuestion(appState.currentId);
+    };
+
+    window.toggleSound = function() {
+      appState.soundEnabled = !appState.soundEnabled;
+      playSfx('click');
+      saveState();
+      updateHUD();
+      showToast(appState.soundEnabled ? '音效已开启' : '音效已静音', appState.soundEnabled ? '🔊' : '🔇');
+    };
+
+    window.switchTrack = function(track) {
+      playSfx('click');
+      ['tabAll', 'tabCs', 'tabP5'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+      });
+      if (track === 'all') document.getElementById('tabAll').classList.add('active');
+      else if (track === 'csharp') document.getElementById('tabCs').classList.add('active');
+      else if (track === 'p5js') document.getElementById('tabP5').classList.add('active');
+
+      appState.activeTrack = track;
+      appState.isMistakeOnlyMode = false;
+
+      if (track === 'csharp' && (appState.currentId < 1 || appState.currentId > 50)) {
+        renderQuestion(1);
+      } else if (track === 'p5js' && (appState.currentId < 51 || appState.currentId > 100)) {
+        renderQuestion(51);
+      } else {
+        renderQuestion(appState.currentId);
+      }
+    };
+
+    window.openMap = function(filterMode) {
+      playSfx('click');
+      buildLevelMap(filterMode || 'all');
+      document.getElementById('mapModal').classList.add('open');
+    };
+
+    window.closeMap = function() {
+      playSfx('click');
+      document.getElementById('mapModal').classList.remove('open');
+    };
+
+    window.filterMap = function(mode) {
+      playSfx('click');
+      ['filterAll', 'filterCs', 'filterP5', 'filterErrors'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+      });
+      if (mode === 'all') document.getElementById('filterAll').classList.add('active');
+      else if (mode === 'csharp') document.getElementById('filterCs').classList.add('active');
+      else if (mode === 'p5js') document.getElementById('filterP5').classList.add('active');
+      else if (mode === 'errors') document.getElementById('filterErrors').classList.add('active');
+      buildLevelMap(mode);
+    };
+
+    function buildLevelMap(filterMode) {
+      const mode = filterMode || 'all';
+      const container = document.getElementById('chaptersList');
+      container.innerHTML = '';
+
+      const chaptersMap = new Map();
+      QUESTIONS_DATA.forEach(q => {
+        let match = false;
+        if (mode === 'all') match = true;
+        else if (mode === 'csharp' && q.track === 'csharp') match = true;
+        else if (mode === 'p5js' && q.track === 'p5js') match = true;
+        else if (mode === 'errors' && appState.errorIds.includes(q.id)) match = true;
+
+        if (match) {
+          if (!chaptersMap.has(q.chapter)) {
+            chaptersMap.set(q.chapter, []);
+          }
+          chaptersMap.get(q.chapter).push(q);
+        }
+      });
+
+      if (chaptersMap.size === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">✨</div>
+            <p>太厉害了！当前分类下没有任何错题！</p>
+          </div>
+        `;
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+      chaptersMap.forEach((qList, chapterName) => {
+        const group = document.createElement('div');
+        group.className = 'chapter-group';
+
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'chapter-group-title';
+        titleDiv.innerHTML = `<span>${chapterName}</span><span>共 ${qList.length} 关</span>`;
+        group.appendChild(titleDiv);
+
+        const grid = document.createElement('div');
+        grid.className = 'levels-grid';
+
+        qList.forEach(q => {
+          const tile = document.createElement('div');
+          tile.className = 'level-tile';
+          
+          let iconText = '';
+          if (appState.errorIds.includes(q.id)) {
+            tile.classList.add('has-error');
+            iconText = '⚠️';
+          } else if (appState.completedIds.includes(q.id)) {
+            tile.classList.add('completed');
+            iconText = '✓';
+          }
+          if (q.id === appState.currentId) {
+            tile.classList.add('current');
+            iconText = '⚡';
+          }
+
+          tile.innerHTML = `<span>${q.id}</span><span class="tile-icon">${iconText}</span>`;
+          tile.onclick = function() {
+            playSfx('click');
+            window.closeMap();
+            renderQuestion(q.id);
+          };
+          grid.appendChild(tile);
+        });
+
+        group.appendChild(grid);
+        frag.appendChild(group);
+      });
+      container.appendChild(frag);
+    }
+
+    window.navGoLearn = function() {
+      playSfx('click');
+      appState.isMistakeOnlyMode = false;
+      renderQuestion(appState.currentId);
+    };
+
+    window.navGoMistakes = function() {
+      playSfx('click');
+      if (appState.errorIds.length === 0) {
+        showToast('目前没有错题记录！继续保持全对！', '🎉');
+        return;
+      }
+      appState.isMistakeOnlyMode = true;
+      showToast('进入错题重练模式', '📝');
+      renderQuestion(appState.errorIds[0]);
+    };
+
+    window.openResetModal = function() {
+      playSfx('click');
+      document.getElementById('resetModal').classList.add('open');
+    };
+
+    window.closeResetModal = function() {
+      playSfx('click');
+      document.getElementById('resetModal').classList.remove('open');
+    };
+
+    window.confirmReset = function() {
+      playSfx('click');
+      appState.completedIds = [];
+      appState.errorIds = [];
+      appState.xp = 0;
+      appState.streak = 0;
+      appState.currentId = 1;
+      saveState();
+      window.closeResetModal();
+      renderQuestion(1);
+      showToast('学习进度已重置', '🔄');
+    };
+
+    function initApp() {
+      loadState();
+      renderQuestion(appState.currentId);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
